@@ -1,34 +1,43 @@
+import 'dotenv/config';
 import express from 'express';
-import type { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
+import helmet from 'helmet';
 import cors from 'cors';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { env } from './config/env';
+import propertyRoutes from './routes/propertyRoutes';
+import agentRoutes from './routes/agentRoutes'
 
 const app = express();
 
-// global middleware first
-const ORIGIN = process.env.ORIGIN || 'http://localhost:3000';
-app.use(cors({ origin: ORIGIN, credentials: true }));
-app.use(morgan('dev'));
-app.use(express.json());
+// Middlewares
+app.use(helmet());
+app.use(cors());
+app.use(express.json()); // parse JSON
 
-// routes next
-app.get('/api/ping', (req: Request, res: Response) => {
+// Health check
+app.get('/ping', (_req, res) => {
   res.json({ message: 'pong from Express + TypeScript!' });
 });
 
-// 404 after routes
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: 'Not Found' });
-});
+// Routes
+app.use('/api/properties', propertyRoutes);
+app.use('/api/agents', agentRoutes);
 
-// error handler last
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  res.status(err.status || 500).json({ error: err.message || 'Server error' });
-});
+// Start server only after DB is connected
+async function start() {
+  try {
+    // MONGO_URI like: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/realestate?retryWrites=true&w=majority
+    // If your password has special chars, percent-encode it (e.g., '@' -> %40).
+    await mongoose.connect(env.MONGO_URI);
+    console.log('MongoDB connected');
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));
+    app.listen(env.PORT, () => {
+      console.log(`Server listening on http://localhost:${env.PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+}
+
+start();
