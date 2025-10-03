@@ -18,6 +18,8 @@ export interface IProperty extends Document {
   images: string[];       // store URLs
   listedAt: Date;
   isActive: boolean;
+
+  agent?: mongoose.Types.ObjectId;
 }
 
 const AddressSchema = new Schema<IProperty['address']>(
@@ -44,6 +46,7 @@ const PropertySchema = new Schema<IProperty>(
     images: { type: [String], default: [] },
     listedAt: { type: Date, default: Date.now },
     isActive: { type: Boolean, default: true },
+    agent: {type: Schema.Types.ObjectId, ref:'Agent'}
   },
   {
     timestamps: true, // createdAt, updatedAt

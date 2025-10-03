@@ -1,3 +1,4 @@
+import { Agent } from './../models/Agent';
 import { Request, Response } from 'express';
 import { Property } from '../models/Property';
 
@@ -15,6 +16,7 @@ export const createProperty = async (req: Request, res: Response) => {
       images,
       listedAt,
       isActive,
+      agent,
     } = req.body ?? {};
 
     if (!title || typeof price !== 'number' || !address?.line1 || !address?.city || !address?.country) {
@@ -36,6 +38,7 @@ export const createProperty = async (req: Request, res: Response) => {
       images,
       listedAt,
       isActive,
+      agent
     });
 
     return res.status(201).json({ message: 'Property created', property: doc });
@@ -52,7 +55,8 @@ export const createProperty = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
   
-      const property = await Property.findById(id);
+      const property = await Property.findById(id).populate('agent','firstName lastName email');
+    
       if (!property) {
         return res.status(404).json({ error: 'property not found' });
       }
