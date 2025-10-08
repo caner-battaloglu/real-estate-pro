@@ -1,35 +1,40 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
+
+export interface Address {
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  country: string;
+}
 
 export interface IProperty extends Document {
   title: string;
   description?: string;
-  price: number;          // in your base currency (e.g., TRY, USD)
-  address: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state?: string;
-    country: string;
-    postalCode?: string;
-  };
-  bedrooms: number;
-  bathrooms: number;
-  sqft?: number;          // or squareMeters?: number;
-  images: string[];       // store URLs
-  listedAt: Date;
-  isActive: boolean;
-
-  agent?: mongoose.Types.ObjectId;
+  price: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  areaSqm?: number;
+  propertyType?: "house" | "apartment" | "condo" | "land" | "other";
+  address: Address;
+  location?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
+  listed: boolean;
+  isDeleted: boolean;
+  agent: Types.ObjectId;
+  images: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const AddressSchema = new Schema<IProperty['address']>(
+const AddressSchema = new Schema<Address>(
   {
     line1: { type: String, required: true, trim: true },
     line2: { type: String, trim: true },
     city: { type: String, required: true, trim: true },
     state: { type: String, trim: true },
-    country: { type: String, required: true, trim: true },
     postalCode: { type: String, trim: true },
+    country: { type: String, required: true, trim: true },
   },
   { _id: false }
 );
@@ -37,22 +42,34 @@ const AddressSchema = new Schema<IProperty['address']>(
 const PropertySchema = new Schema<IProperty>(
   {
     title: { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
-    price: { type: Number, required: true, min: 0 },
+    description: { type: String },
+    price: {
+      type: Number,
+      required: [true, "Price is required"],
+      min: [0, "Price must be positive"], // <-- custom message
+    },
+    bedrooms: { type: Number, min: 0 },
+    bathrooms: { type: Number, min: 0 },
+    areaSqm: { type: Number, min: 0 },
+    propertyType: {
+      type: String,
+      enum: ["house", "apartment", "condo", "land", "other"],
+      default: "other",
+    },
     address: { type: AddressSchema, required: true },
-    bedrooms: { type: Number, required: true, min: 0 },
-    bathrooms: { type: Number, required: true, min: 0 },
-    sqft: { type: Number, min: 0 },
+    location: {
+      type: { type: String, enum: ["Point"], default: "Point" },
+      coordinates: { type: [Number], default: undefined }, // [lng, lat]
+    },
+    listed: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+    agent: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
     images: { type: [String], default: [] },
-    listedAt: { type: Date, default: Date.now },
-    isActive: { type: Boolean, default: true },
-    agent: {type: Schema.Types.ObjectId, ref:'Agent'}
   },
-  {
-    timestamps: true, // createdAt, updatedAt
-  }
+  { timestamps: true }
 );
 
-// Avoid OverwriteModelError in watch-mode/TS-node
-export const Property: Model<IProperty> =
-  mongoose.models.Property || mongoose.model<IProperty>('Property', PropertySchema);
+PropertySchema.index({ "address.city": 1, price: 1 });
+PropertySchema.index({ location: "2dsphere" });
+
+export const Property = model<IProperty>("Property", PropertySchema);

@@ -1,43 +1,34 @@
-import 'dotenv/config';
-import express from 'express';
-import mongoose from 'mongoose';
-import helmet from 'helmet';
-import cors from 'cors';
-import { env } from './config/env';
-import propertyRoutes from './routes/propertyRoutes';
-import agentRoutes from './routes/agentRoutes'
+import express from "express";
+import morgan from "morgan";
+import cors from "cors";
+import helmet from "helmet";
+import dotenv from "dotenv";
+import { connectDB } from "./db/connect";
+import { errorHandler } from "./middleware/errorHandler";
+import agentRoutes from "./routes/agentRoutes";
+import propertyRoutes from "./routes/propertyRoutes";
+
+dotenv.config();
 
 const app = express();
 
-// Middlewares
 app.use(helmet());
 app.use(cors());
-app.use(express.json()); // parse JSON
+app.use(express.json());
+app.use(morgan("dev"));
 
-// Health check
-app.get('/ping', (_req, res) => {
-  res.json({ message: 'pong from Express + TypeScript!' });
+app.get("/health", (_req, res) => res.json({ ok: true }));
+
+app.use("/api/agents", agentRoutes);
+app.use("/api/properties", propertyRoutes);
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 4000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/real_estate_pro";
+
+connectDB(MONGO_URI).then(() => {
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 });
 
-// Routes
-app.use('/api/properties', propertyRoutes);
-app.use('/api/agents', agentRoutes);
-
-// Start server only after DB is connected
-async function start() {
-  try {
-    // MONGO_URI like: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/realestate?retryWrites=true&w=majority
-    // If your password has special chars, percent-encode it (e.g., '@' -> %40).
-    await mongoose.connect(env.MONGO_URI);
-    console.log('MongoDB connected');
-
-    app.listen(env.PORT, () => {
-      console.log(`Server listening on http://localhost:${env.PORT}`);
-    });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  }
-}
-
-start();
+export default app;

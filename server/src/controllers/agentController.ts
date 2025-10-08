@@ -1,49 +1,68 @@
-import { Request, Response } from 'express';
-import { Agent } from '../models/Agent';
+import { Request, Response } from "express";
+import { Agent } from "../models/Agent";
+import { asyncHandler } from "../middleware/asyncHandler";
 
-export const createAgent = async (req: Request, res: Response) => {
-  try {
-    const { firstName, lastName, email, phone, agency, licenseNumber, avatarUrl, role, isActive } = req.body ?? {};
-
-    if (!firstName || !lastName|| !email ) {
-      return res.status(400).json({ error: 'Missing required fields: firstName, lastName, email' });
-    }
-
-    const doc = await Agent.create({
-      firstName,
-      lastName,
-      email,
-      phone,
-      agency,
-      licenseNumber,
-      avatarUrl,
-      role,
-      isActive,
-    });
-
-    return res.status(201).json({ message: 'Agent created', agent: doc });
-  } catch (err: any) {
-    if (err?.code === 11000 && err?.keyPattern?.email) {
-      return res.status(409).json({ error: 'Email already exists' });
-    }
-    if (err?.code === 11000 && err?.keyPattern?.licenseNumber) {
-      return res.status(409).json({ error: 'License number already exists' });
-    }
-    return res.status(500).json({ error: 'Internal Server Error' });
+// CREATE
+export const createAgent = asyncHandler(async (req: Request, res: Response) => {
+  const { firstName, lastName, email } = req.body || {};
+  if (!firstName || !lastName || !email) {
+    return res.status(400).json({ message: "firstName, lastName, email are required" });
   }
-};
+  const created = await Agent.create(req.body);
+  res.status(201).json(created);
+});
 
-export const getAgentById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+// READ (by id)
+export const getAgentById = asyncHandler(async (req: Request, res: Response) => {
+  const agent = await Agent.findById(req.params.id);
+  if (!agent) return res.status(404).json({ message: "Agent not found" });
+  res.json(agent);
+});
 
-    const agent = await Agent.findById(id);
-    if (!agent) {
-      return res.status(404).json({ error: 'Agent not found' });
-    }
-
-    return res.json({ agent });
-  } catch (err) {
-    return res.status(500).json({ error: 'Internal Server Error' });
+// LIST (search + paginate)
+export const listAgents = asyncHandler(async (req: Request, res: Response) => {
+  const { q, active, page = "1", limit = "10" } = req.query as Record<string, string>;
+  const filter: any = {};
+  if (typeof active === "string") filter.isActive = active === "true";
+  if (q && q.trim()) {
+    filter.$or = [
+      { firstName: { $regex: q, $options: "i" } },
+      { lastName: { $regex: q, $options: "i" } },
+      { email: { $regex: q, $options: "i" } },
+      { agency: { $regex: q, $options: "i" } }
+    ];
   }
-};
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+  const skip = (pageNum - 1) * limitNum;
+
+  const [items, total] = await Promise.all([
+    Agent.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+    Agent.countDocuments(filter)
+  ]);
+
+  res.json({ items, total, page: pageNum, pages: Math.ceil(total / limitNum) });
+});
+
+// UPDATE (partial)
+export const updateAgent = asyncHandler(async (req: Request, res: Response) => {
+  const updated = await Agent.findByIdAndUpdate(
+    req.params.id,
+    { $set: req.body },
+    { new: true, runValidators: true, context: "query" }
+  );
+  if (!updated) return res.status(404).json({ message: "Agent not found" });
+  res.json(updated);
+});
+
+// DELETE (soft: deactivate)
+export const deactivateAgent = asyncHandler(async (req: Request, res: Response) => {
+  const updated = await Agent.findByIdAndUpdate(
+    req.params.id,
+    { $set: { isActive: false } },
+    { new: true, runValidators: true, context: "query" }
+  );
+  if (!updated) return res.status(404).json({ message: "Agent not found" });
+  res.json({ message: "Agent deactivated", agent: updated });
+});

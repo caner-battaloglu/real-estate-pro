@@ -1,26 +1,32 @@
+/* Tailwind v4 */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Optional config via CSS (v4-style) */
+@theme {
+  --shadow-card: 0 6px 24px rgba(0,0,0,0.06);
+  --radius-2xl: 1.25rem;
+  --ring-brand: 0 0 0 3px rgba(37,99,235,0.25);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* If your files live in unusual places, help Tailwind find them: */
+@source "./src/**/*.{ts,tsx,js,jsx}";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Base visuals */
+html, body { height: 100%; }
+body { background: linear-gradient(180deg, #fafbff 0%, #ffffff 30%); color: #111827; }
+::selection { background: #dbeafe; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* Components */
+.card { border-radius: var(--radius-2xl); box-shadow: var(--shadow-card); background: white; transition: box-shadow .2s ease, transform .2s ease; }
+.card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.10); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.75rem; padding: 0.625rem 1rem; font-weight: 600; transition: background-color .2s ease, color .2s ease, box-shadow .2s ease; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-outline { border: 1px solid #e5e7eb; color: #111827; background: white; }
+.btn-outline:hover { background: #f9fafb; }
+
+.input, .select { border: 1px solid #e5e7eb; background: white; border-radius: 0.75rem; padding: 0.625rem 0.75rem; outline: none; transition: box-shadow .2s ease, border-color .2s ease; }
+.input:focus, .select:focus { border-color: #2563eb; box-shadow: var(--ring-brand); }
+
+.badge { display: inline-flex; align-items: center; height: 1.5rem; padding: 0 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; background: rgba(17,24,39,0.06); color: #111827; backdrop-filter: saturate(180%) blur(10px); }
