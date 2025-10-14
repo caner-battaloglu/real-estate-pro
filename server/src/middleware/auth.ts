@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-export type AppRole = "public" | "agent" | "admin";
+export type AppRole = "user" | "agent" | "admin";
 
 export type JwtUser = { id: string; email: string; role: AppRole; jti: string };
 

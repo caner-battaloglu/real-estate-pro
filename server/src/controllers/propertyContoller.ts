@@ -1,103 +1,156 @@
 import { Request, Response } from "express";
+import {asyncHandler} from "../middleware/asyncHandler";
 import { Property } from "../models/Property";
-import { Agent } from "../models/Agent";
-import { asyncHandler } from "../middleware/asyncHandler";
 
-function hasAddressRequired(addr: any) {
-  return !!(addr && addr.line1 && addr.city && addr.country);
-}
-
-// CREATE
+/**
+ * Create a property (agent/admin)
+ * - agent is taken from req.user.id (never from client body)
+ * - status defaults to "pending" for moderation
+ * - address.line1, address.city, address.country are required
+ */
 export const createProperty = asyncHandler(async (req: Request, res: Response) => {
-  const body = req.body || {};
-  if (!body.title) return res.status(400).json({ message: "title is required" });
-  if (typeof body.price !== "number") return res.status(400).json({ message: "price (number) is required" });
-  if (!hasAddressRequired(body.address)) {
-    return res.status(400).json({ message: "address.line1, address.city, address.country are required" });
-  }
-  if (!body.agent) return res.status(400).json({ message: "agent is required" });
-
-  const agentExists = await Agent.findById(body.agent);
-  if (!agentExists) return res.status(400).json({ message: "Agent does not exist" });
-
-  if (!body.location?.coordinates) {
-    body.location = { type: "Point", coordinates: [0, 0] };
+  const address = req.body?.address;
+  if (!address || !address.line1 || !address.city || !address.country) {
+    return res
+      .status(400)
+      .json({ message: "address.line1, address.city, address.country are required" });
   }
 
-  const created = await Property.create(body);
-  res.status(201).json(created);
+  const payload = {
+    title: req.body.title,
+    description: req.body.description,
+    price: req.body.price,
+    type: req.body.type,
+    bedrooms: req.body.bedrooms,
+    bathrooms: req.body.bathrooms,
+    area: req.body.area,
+    images: req.body.images,
+    address,
+    agent: req.user!.id, // <- critical: set server-side
+    status: "pending",   // moderation workflow default
+  };
+
+  const doc = await Property.create(payload);
+  return res.status(201).json({ property: doc });
 });
 
-// READ (by id)
-export const getPropertyById = asyncHandler(async (req: Request, res: Response) => {
-  const prop = await Property.findById(req.params.id)
-    .where({ isDeleted: { $ne: true } })
-    .populate("agent", "firstName lastName email");
+/**
+ * Submit a property for approval (agent/admin)
+ * - only the owning agent can submit
+ * - sets status back to "pending" and clears approval fields
+ */
+export const submitForApproval = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const prop = await Property.findOne({ _id: id, agent: req.user!.id });
   if (!prop) return res.status(404).json({ message: "Property not found" });
-  res.json(prop);
-});
 
-// LIST (filters + paginate)
-export const listProperties = asyncHandler(async (req: Request, res: Response) => {
-  const { city, q, minPrice, maxPrice, listed, page = "1", limit = "10" } =
-    req.query as Record<string, string>;
-
-  const filter: any = { isDeleted: { $ne: true } };
-  if (city) filter["address.city"] = { $regex: city, $options: "i" };
-  if (q) filter.title = { $regex: q, $options: "i" };
-  if (listed !== undefined) filter.listed = listed === "true";
-  if (minPrice || maxPrice) {
-    filter.price = {
-      ...(minPrice ? { $gte: Number(minPrice) } : {}),
-      ...(maxPrice ? { $lte: Number(maxPrice) } : {})
-    };
+  if (prop.status === "approved") {
+    return res.status(400).json({ message: "Property already approved" });
   }
 
-  const pageNum = Math.max(1, parseInt(page, 10) || 1);
-  const limitNum = Math.max(1, parseInt(limit, 10) || 10);
-  const skip = (pageNum - 1) * limitNum;
+  prop.status = "pending";
+  prop.approvedBy = null;
+  prop.approvedAt = null;
+  prop.rejectionReason = null;
+  await prop.save();
 
-  const [items, total] = await Promise.all([
-    Property.find(filter)
-      .populate("agent", "firstName lastName email")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum),
-    Property.countDocuments(filter)
-  ]);
-
-  res.json({ items, total, page: pageNum, pages: Math.ceil(total / limitNum) });
+  return res.json({ message: "Submitted for approval", property: { id: prop.id, status: prop.status } });
 });
 
-// UPDATE (partial)
+/**
+ * Public list — only approved properties
+ */
+export const listPublic = asyncHandler(async (_req: Request, res: Response) => {
+  const items = await Property.find({ status: "approved" }).lean();
+  return res.json({ items });
+});
+
+/**
+ * Agent dashboard list — properties owned by current agent (any status)
+ */
+export const listMine = asyncHandler(async (req: Request, res: Response) => {
+  const items = await Property.find({ agent: req.user!.id }).lean();
+  return res.json({ items });
+});
+
+/**
+ * Public detail — only if approved (or allow agent/admin to see their own)
+ */
+export const getPropertyById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const prop = await Property.findById(id).lean();
+  if (!prop) return res.status(404).json({ message: "Property not found" });
+
+  // If not approved, hide from public; allow owner/admin visibility if your auth puts req.user
+  if (prop.status !== "approved") {
+    const isOwner = req.user && String(prop.agent) === req.user.id;
+    const isAdmin = req.user && req.user.role === "admin";
+    if (!isOwner && !isAdmin) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+  }
+
+  return res.json({ property: prop });
+});
+
+/**
+ * Update property (agent/admin)
+ * - only owner agent or admin can update
+ * - keep moderation simple: editing re-submits to pending (optional rule)
+ */
 export const updateProperty = asyncHandler(async (req: Request, res: Response) => {
-  if (req.body?.agent) {
-    const agentExists = await Agent.findById(req.body.agent);
-    if (!agentExists) return res.status(400).json({ message: "Agent does not exist" });
-  }
-  if (req.body?.address && !hasAddressRequired(req.body.address)) {
-    return res.status(400).json({
-      message: "When updating address, include address.line1, address.city, address.country"
-    });
+  const { id } = req.params;
+  const prop = await Property.findById(id);
+  if (!prop) return res.status(404).json({ message: "Property not found" });
+
+  const isOwner = prop.agent && String(prop.agent) === req.user!.id;
+  const isAdmin = req.user!.role === "admin";
+  if (!isOwner && !isAdmin) return res.status(403).json({ message: "Forbidden" });
+
+  // Apply allowed updates
+  const updatable = [
+    "title",
+    "description",
+    "price",
+    "type",
+    "bedrooms",
+    "bathrooms",
+    "area",
+    "images",
+    "address",
+  ] as const;
+
+  for (const key of updatable) {
+    if (key in req.body) {
+      // @ts-expect-error index access is safe for controlled keys
+      prop[key] = req.body[key];
+    }
   }
 
-  const updated = await Property.findByIdAndUpdate(
-    req.params.id,
-    { $set: req.body },
-    { new: true, runValidators: true, context: "query" }
-  ).populate("agent", "firstName lastName email");
+  // Optional rule: any edit reverts to pending for re-approval
+  if (!isAdmin) {
+    prop.status = "pending";
+    prop.approvedBy = null;
+    prop.approvedAt = null;
+    prop.rejectionReason = null;
+  }
 
-  if (!updated) return res.status(404).json({ message: "Property not found" });
-  res.json(updated);
+  await prop.save();
+  return res.json({ property: prop });
 });
 
-// DELETE (soft)
+/**
+ * Delete property (agent owner or admin)
+ */
 export const deleteProperty = asyncHandler(async (req: Request, res: Response) => {
-  const updated = await Property.findByIdAndUpdate(
-    req.params.id,
-    { $set: { isDeleted: true } },
-    { new: true, runValidators: true, context: "query" }
-  );
-  if (!updated) return res.status(404).json({ message: "Property not found" });
-  res.json({ message: "Property soft-deleted", property: updated });
+  const { id } = req.params;
+  const prop = await Property.findById(id);
+  if (!prop) return res.status(404).json({ message: "Property not found" });
+
+  const isOwner = prop.agent && String(prop.agent) === req.user!.id;
+  const isAdmin = req.user!.role === "admin";
+  if (!isOwner && !isAdmin) return res.status(403).json({ message: "Forbidden" });
+
+  await prop.deleteOne();
+  return res.json({ message: "Property deleted" });
 });

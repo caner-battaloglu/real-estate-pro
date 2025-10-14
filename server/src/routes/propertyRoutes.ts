@@ -1,18 +1,10 @@
 import { Router } from "express";
-import {
-  createProperty,
-  getPropertyById,
-  listProperties,
-  updateProperty,
-  deleteProperty
-} from "../controllers/propertyContoller"; // keep your original filename
+import { listPublic, getPropertyById } from "../controllers/propertyContoller";
 
-const router = Router();
+const r = Router();
 
-router.get("/", listProperties);
-router.get("/:id", getPropertyById);
-router.post("/", createProperty);
-router.patch("/:id", updateProperty);
-router.delete("/:id", deleteProperty);
+// Public catalogue
+r.get("/properties", listPublic);
+r.get("/properties/:id", getPropertyById);
 
-export default router;
+export default r;

@@ -1,8 +1,8 @@
+import mongoose, { Document, Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
-import { Schema, model, Document, Types } from "mongoose";
 import crypto from "crypto";
 
-export type AppRole = "public" | "agent" | "admin";
+export type AppRole = "user" | "agent" | "admin";
 
 export interface IUser extends Document {
   email: string;
@@ -12,21 +12,22 @@ export interface IUser extends Document {
   role: AppRole;
   isActive: boolean;
   favorites: Types.ObjectId[];
-  createdAt: Date;
-  updatedAt: Date;
 
-
+  // Session + security
   refreshTokenHash?: string | null;
   refreshTokenExpiresAt?: Date | null;
 
+  // Password reset + email verify
   passwordResetTokenHash?: string | null;
   passwordResetExpiresAt?: Date | null;
-
   emailVerifyTokenHash?: string | null;
   emailVerifyExpiresAt?: Date | null;
   emailVerifiedAt?: Date | null;
 
-  // methods
+  // New workflow flags
+  mustChangePassword: boolean;
+  createdByAdmin: boolean;
+
   comparePassword(candidatePassword: string): Promise<boolean>;
   fullName: string;
 }
@@ -39,7 +40,6 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
       validate: {
         validator: (v: string) => /^\S+@\S+\.\S+$/.test(v),
         message: "Invalid email format",
@@ -49,24 +49,28 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       minlength: [8, "Password must be at least 8 characters"],
-      select: false, // do not return by default
+      select: false,
     },
-    firstName: { type: String, trim: true, default: "" },
-    lastName: { type: String, trim: true, default: "" },
-    role: { type: String, enum: ["public", "agent", "admin"], default: "public" },
+    firstName: { type: String, trim: true },
+    lastName: { type: String, trim: true },
+    role: { type: String, enum: ["user", "agent", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
     favorites: [{ type: Schema.Types.ObjectId, ref: "Property" }],
 
-
+    // session + security
     refreshTokenHash: { type: String, default: null, select: false },
     refreshTokenExpiresAt: { type: Date, default: null },
 
+    // password reset + email verify
     passwordResetTokenHash: { type: String, default: null, select: false },
     passwordResetExpiresAt: { type: Date, default: null },
-
     emailVerifyTokenHash: { type: String, default: null, select: false },
     emailVerifyExpiresAt: { type: Date, default: null },
     emailVerifiedAt: { type: Date, default: null },
+
+    // workflow flags
+    mustChangePassword: { type: Boolean, default: false },
+    createdByAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -80,22 +84,19 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-// Compare password
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  // this.password is selected:false; ensure you selected it when querying!
+UserSchema.methods.comparePassword = async function (candidatePassword: string) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Virtual full name
 UserSchema.virtual("fullName").get(function (this: IUser) {
   return `${this.firstName ?? ""} ${this.lastName ?? ""}`.trim();
 });
 
 UserSchema.set("toJSON", { virtuals: true });
 
-export const User = model<IUser>("User", UserSchema);
+export const User = mongoose.model<IUser>("User", UserSchema);
 
-// Tiny helpers you might reuse elsewhere
+// Small helpers
 export function sha256(raw: string) {
   return crypto.createHash("sha256").update(raw).digest("hex");
 }

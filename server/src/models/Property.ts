@@ -1,75 +1,52 @@
-import { Schema, model, Document, Types } from "mongoose";
-
-export interface Address {
-  line1: string;
-  line2?: string;
-  city: string;
-  state?: string;
-  postalCode?: string;
-  country: string;
-}
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IProperty extends Document {
   title: string;
-  description?: string;
+  description: string;
   price: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  areaSqm?: number;
-  propertyType?: "house" | "apartment" | "condo" | "land" | "other";
-  address: Address;
-  location?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
-  listed: boolean;
-  isDeleted: boolean;
-  agent: Types.ObjectId;
+  location: string;
+  type: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
   images: string[];
+
+  // workflow
+  status: "draft" | "pending" | "approved" | "rejected";
+  agent: Types.ObjectId;
+  approvedBy?: Types.ObjectId | null;
+  approvedAt?: Date | null;
+  rejectionReason?: string | null;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
-const AddressSchema = new Schema<Address>(
-  {
-    line1: { type: String, required: true, trim: true },
-    line2: { type: String, trim: true },
-    city: { type: String, required: true, trim: true },
-    state: { type: String, trim: true },
-    postalCode: { type: String, trim: true },
-    country: { type: String, required: true, trim: true },
-  },
-  { _id: false }
-);
-
 const PropertySchema = new Schema<IProperty>(
   {
-    title: { type: String, required: true, trim: true },
-    description: { type: String },
-    price: {
-      type: Number,
-      required: [true, "Price is required"],
-      min: [0, "Price must be positive"], // <-- custom message
-    },
-    bedrooms: { type: Number, min: 0 },
-    bathrooms: { type: Number, min: 0 },
-    areaSqm: { type: Number, min: 0 },
-    propertyType: {
+    title: { type: String, required: true },
+    description: { type: String, default: "" },
+    price: { type: Number, required: true, min: 0 },
+    location: { type: String, required: true },
+    type: { type: String, required: true },
+    bedrooms: { type: Number, default: 0 },
+    bathrooms: { type: Number, default: 0 },
+    area: { type: Number, default: 0 },
+    images: [{ type: String }],
+
+    // moderation + workflow
+    status: {
       type: String,
-      enum: ["house", "apartment", "condo", "land", "other"],
-      default: "other",
+      enum: ["draft", "pending", "approved", "rejected"],
+      default: "pending",
+      index: true,
     },
-    address: { type: AddressSchema, required: true },
-    location: {
-      type: { type: String, enum: ["Point"], default: "Point" },
-      coordinates: { type: [Number], default: undefined }, // [lng, lat]
-    },
-    listed: { type: Boolean, default: true },
-    isDeleted: { type: Boolean, default: false },
-    agent: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
-    images: { type: [String], default: [] },
+    agent: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    approvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    approvedAt: { type: Date, default: null },
+    rejectionReason: { type: String, default: null },
   },
   { timestamps: true }
 );
 
-PropertySchema.index({ "address.city": 1, price: 1 });
-PropertySchema.index({ location: "2dsphere" });
-
-export const Property = model<IProperty>("Property", PropertySchema);
+export const Property = mongoose.model<IProperty>("Property", PropertySchema);

@@ -34,7 +34,7 @@ export async function register(req: Request, res: Response) {
       password,
       firstName: firstName ?? "",
       lastName: lastName ?? "",
-      role: "public",
+      role: "user",
     });
 
     // Dev-mode email verification token (optional)
