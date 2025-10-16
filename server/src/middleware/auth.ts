@@ -37,10 +37,16 @@ function refreshDaysRemember() {
 // ---------- token helpers ----------
 export function signAccess(user: { id: string; email: string; role: AppRole }) {
   const jti = crypto.randomUUID();
-  const payload: JwtUser = { id: user.id, email: user.email, role: user.role, jti };
-  return jwt.sign(payload, getAccessSecret(), { expiresIn: `${accessTTLMinutes()}m` });
+  const payload: JwtUser = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    jti,
+  };
+  return jwt.sign(payload, getAccessSecret(), {
+    expiresIn: `${accessTTLMinutes()}m`,
+  });
 }
-
 export function makeRefresh() {
   const raw = crypto.randomBytes(48).toString("hex");
   const hash = crypto.createHash("sha256").update(raw).digest("hex");
@@ -53,7 +59,11 @@ export function hashToken(raw: string) {
 
 export const refreshCookieName = "refreshToken";
 
-export function setRefreshCookie(res: Response, token: string, expiresAt: Date) {
+export function setRefreshCookie(
+  res: Response,
+  token: string,
+  expiresAt: Date
+) {
   res.cookie(refreshCookieName, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -68,7 +78,11 @@ export function clearRefreshCookie(res: Response) {
 }
 
 // ---------- middlewares ----------
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const hdr = req.headers.authorization;
   const token = hdr?.startsWith("Bearer ") ? hdr.slice(7) : null;
   if (!token) return res.status(401).json({ error: "Missing access token" });
@@ -84,7 +98,8 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 
 export function requireRole(...roles: AppRole[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) return res.status(401).json({ error: "Authentication required" });
+    if (!req.user)
+      return res.status(401).json({ error: "Authentication required" });
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: "Insufficient privileges" });
     }

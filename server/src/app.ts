@@ -10,6 +10,8 @@ import { errorHandler } from "./middleware/errorHandler";
 import agentRoutes from "./routes/agentRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
 import authRoutes from "./routes/authRoutes";
+import adminRoutes from "./routes/adminRoutes";
+
 
 
 // Always load env from server/.env regardless of current working directory
@@ -31,6 +33,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/agents", agentRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 app.use(errorHandler);

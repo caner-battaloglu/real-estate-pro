@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth";
+import { User } from "../models/User";
 import {
   register,
   login,
@@ -26,5 +27,13 @@ router.post("/logout", logout);
 
 /* Protected */
 router.get("/profile", authenticateToken, getProfile);
+
+router.get("/me", authenticateToken, async (req, res) => {
+  const dbUser = await User.findById(req.user!.id).select("email role");
+  res.json({
+    tokenUser: req.user,      // what the JWT says
+    dbUser,                   // what Mongo says
+  });
+});
 
 export default router;
