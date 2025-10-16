@@ -13,7 +13,9 @@ import crypto from "crypto";
 
 /** Normalize email consistently */
 function normEmail(v: unknown) {
-  return String(v || "").trim().toLowerCase();
+  return String(v || "")
+    .trim()
+    .toLowerCase();
 }
 
 /** SELF-REGISTER — forces role='public' regardless of input */
@@ -27,7 +29,8 @@ export async function register(req: Request, res: Response) {
     }
 
     const exists = await User.findOne({ email });
-    if (exists) return res.status(409).json({ error: "Email already registered" });
+    if (exists)
+      return res.status(409).json({ error: "Email already registered" });
 
     const user = await User.create({
       email,
@@ -44,7 +47,8 @@ export async function register(req: Request, res: Response) {
     await user.save();
 
     // In dev, return the token so you can hit /verify
-    const devToken = process.env.NODE_ENV !== "production" ? verifyRaw : undefined;
+    const devToken =
+      process.env.NODE_ENV !== "production" ? verifyRaw : undefined;
 
     return res.status(201).json({
       message: "Registered",
@@ -68,17 +72,25 @@ export async function login(req: Request, res: Response) {
     const email = normEmail(req.body.email);
     const { password, remember } = req.body;
 
-    const user = await User.findOne({ email }).select("+password +refreshTokenHash");
+    const user = await User.findOne({ email }).select(
+      "+password +refreshTokenHash"
+    );
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
     const ok = await user.comparePassword(password);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-    const access = signAccess({ id: user.id, email: user.email, role: user.role });
+    const access = signAccess({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     // create & store refresh (hash only)
     const { raw, hash } = makeRefresh();
-    const days = remember ? Number(process.env.REFRESH_TOKEN_REMEMBER_DAYS ?? 30) : Number(process.env.REFRESH_TOKEN_DAYS ?? 7);
+    const days = remember
+      ? Number(process.env.REFRESH_TOKEN_REMEMBER_DAYS ?? 30)
+      : Number(process.env.REFRESH_TOKEN_DAYS ?? 7);
     const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
     user.refreshTokenHash = hash;
@@ -95,6 +107,7 @@ export async function login(req: Request, res: Response) {
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
+        mustChangePassword: user.mustChangePassword, // <= add this
       },
     });
   } catch {
@@ -110,18 +123,30 @@ export async function refresh(req: Request, res: Response) {
 
     const h = hashToken(raw);
     const user = await User.findOne({ refreshTokenHash: h });
-    if (!user || !user.refreshTokenExpiresAt || user.refreshTokenExpiresAt < new Date()) {
-      return res.status(401).json({ error: "Invalid or expired refresh token" });
+    if (
+      !user ||
+      !user.refreshTokenExpiresAt ||
+      user.refreshTokenExpiresAt < new Date()
+    ) {
+      return res
+        .status(401)
+        .json({ error: "Invalid or expired refresh token" });
     }
 
     // rotate
-    const access = signAccess({ id: user.id, email: user.email, role: user.role });
+    const access = signAccess({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     const { raw: nextRaw, hash: nextHash } = makeRefresh();
 
     // keep same longevity window as before (simple approach)
     const now = Date.now();
-    const msLeft = Math.max(0, (user.refreshTokenExpiresAt.getTime() - now));
-    const expiresAt = new Date(now + (msLeft || Number(process.env.REFRESH_TOKEN_DAYS ?? 7) * 86400000));
+    const msLeft = Math.max(0, user.refreshTokenExpiresAt.getTime() - now);
+    const expiresAt = new Date(
+      now + (msLeft || Number(process.env.REFRESH_TOKEN_DAYS ?? 7) * 86400000)
+    );
 
     user.refreshTokenHash = nextHash;
     user.refreshTokenExpiresAt = expiresAt;
@@ -140,7 +165,10 @@ export async function logout(req: Request, res: Response) {
     const raw = req.cookies?.refreshToken as string | undefined;
     if (raw) {
       const h = hashToken(raw);
-      await User.updateMany({ refreshTokenHash: h }, { $set: { refreshTokenHash: null, refreshTokenExpiresAt: null } });
+      await User.updateMany(
+        { refreshTokenHash: h },
+        { $set: { refreshTokenHash: null, refreshTokenExpiresAt: null } }
+      );
     }
     clearRefreshCookie(res);
     return res.json({ message: "Logged out" });
@@ -170,7 +198,10 @@ export async function forgotPassword(req: Request, res: Response) {
   const email = normEmail(req.body.email);
   const user = await User.findOne({ email }).select("+passwordResetTokenHash");
   // Always OK (avoid enumeration)
-  if (!user) return res.json({ message: "If that email exists, a reset link has been sent." });
+  if (!user)
+    return res.json({
+      message: "If that email exists, a reset link has been sent.",
+    });
 
   const raw = crypto.randomBytes(32).toString("hex");
   const hash = hashToken(raw);
@@ -183,13 +214,21 @@ export async function forgotPassword(req: Request, res: Response) {
   if (process.env.NODE_ENV !== "production") {
     return res.json({ resetToken: raw, expiresAt });
   }
-  return res.json({ message: "If that email exists, a reset link has been sent." });
+  return res.json({
+    message: "If that email exists, a reset link has been sent.",
+  });
 }
 
 /** Confirm password reset */
 export async function resetPassword(req: Request, res: Response) {
-  const { token, newPassword } = req.body as { token?: string; newPassword?: string };
-  if (!token || !newPassword) return res.status(400).json({ error: "token and newPassword are required" });
+  const { token, newPassword } = req.body as {
+    token?: string;
+    newPassword?: string;
+  };
+  if (!token || !newPassword)
+    return res
+      .status(400)
+      .json({ error: "token and newPassword are required" });
 
   const hash = hashToken(token);
   const user = await User.findOne({
@@ -197,18 +236,20 @@ export async function resetPassword(req: Request, res: Response) {
     passwordResetExpiresAt: { $gt: new Date() },
   }).select("+password");
 
-  if (!user) return res.status(400).json({ error: "Invalid or expired reset token" });
+  if (!user)
+    return res.status(400).json({ error: "Invalid or expired reset token" });
 
   user.password = newPassword; // pre-save hook will hash
   user.passwordResetTokenHash = null;
   user.passwordResetExpiresAt = null;
 
-  // also revoke refresh
-  user.refreshTokenHash = null;
-  user.refreshTokenExpiresAt = null;
-  await user.save();
+user.password = newPassword;                // pre-save hook hashes
+user.mustChangePassword = false;            // <= clear the first-login lock
+user.refreshTokenHash = null;               // optional but recommended: revoke sessions
+user.refreshTokenExpiresAt = null;
+await user.save();
 
-  return res.json({ message: "Password updated" });
+return res.json({ message: "Password updated" });
 }
 
 /** Verify email — dev flow */
@@ -222,7 +263,10 @@ export async function verifyEmail(req: Request, res: Response) {
     emailVerifyExpiresAt: { $gt: new Date() },
   });
 
-  if (!user) return res.status(400).json({ error: "Invalid or expired verification token" });
+  if (!user)
+    return res
+      .status(400)
+      .json({ error: "Invalid or expired verification token" });
 
   user.emailVerifiedAt = new Date();
   user.emailVerifyTokenHash = null;

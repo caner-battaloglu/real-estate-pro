@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import {asyncHandler} from "../middleware/asyncHandler";
-import { Property } from "../models/Property";
+import { IProperty, Property } from "../models/Property";
 
 /**
  * Create a property (agent/admin)
@@ -8,12 +8,35 @@ import { Property } from "../models/Property";
  * - status defaults to "pending" for moderation
  * - address.line1, address.city, address.country are required
  */
-export const createProperty = asyncHandler(async (req: Request, res: Response) => {
+export const createProperty = asyncHandler(async (req: Request, res:Response) => {
   const address = req.body?.address;
   if (!address || !address.line1 || !address.city || !address.country) {
-    return res
-      .status(400)
-      .json({ message: "address.line1, address.city, address.country are required" });
+    return res.status(400).json({ message: "address.line1, address.city, address.country are required" });
+  }
+
+  // human-readable label: prefer body.location, otherwise derive from address
+  const locationText =
+    typeof req.body.location === "string" && req.body.location.trim().length > 0
+      ? req.body.location.trim()
+      : `${address.city}, ${address.country}`;
+
+  // optional geospatial point (from frontend map pin)
+  let geo = null as IProperty["geo"];
+  const g = req.body.geo;
+  if (g) {
+    const validPoint =
+      typeof g === "object" &&
+      g.type === "Point" &&
+      Array.isArray(g.coordinates) &&
+      g.coordinates.length === 2 &&
+      typeof g.coordinates[0] === "number" &&
+      typeof g.coordinates[1] === "number";
+    if (!validPoint) {
+      return res.status(400).json({
+        message: "geo must be GeoJSON: { type:'Point', coordinates:[lng,lat] }"
+      });
+    }
+    geo = { type: "Point", coordinates: [g.coordinates[0], g.coordinates[1]] };
   }
 
   const payload = {
@@ -26,8 +49,10 @@ export const createProperty = asyncHandler(async (req: Request, res: Response) =
     area: req.body.area,
     images: req.body.images,
     address,
-    agent: req.user!.id, // <- critical: set server-side
-    status: "pending",   // moderation workflow default
+    location: locationText,
+    geo,
+    agent: req.user!.id,
+    status: "pending",
   };
 
   const doc = await Property.create(payload);
