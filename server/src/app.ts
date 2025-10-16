@@ -35,7 +35,7 @@ app.use("/api/properties", propertyRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/real_estate_pro";
 
 connectDB(MONGO_URI).then(() => {

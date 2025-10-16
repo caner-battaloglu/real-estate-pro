@@ -1,30 +1,26 @@
 import { Router } from "express";
 import { authenticateToken, requireRole } from "../middleware/auth";
-import { enforcePasswordChange } from "../middleware/enforcePasswordChange"; // ensure this file exists
+import { enforcePasswordChange } from "../middleware/enforcePasswordChange";
 import {
   createProperty,
   submitForApproval,
   listMine,
   updateProperty,
   deleteProperty,
-} from "../controllers/propertyContoller";
+} from "../controllers/propertyContoller"; // NOTE: your file name has 'Contoller'
 
-const r = Router();
+const router = Router();
 
-// All agent endpoints require auth, agent/admin role, and first-login password change cleared
-r.use(authenticateToken, requireRole("agent", "admin"), enforcePasswordChange);
+// Health check to prove this router is mounted:
+router.get("/health", (_req, res) => res.json({ ok: true, scope: "agent" }));
 
-// Agent dashboard: list mine
-r.get("/properties", listMine);
+// All agent endpoints require auth + role + first-login cleared
+router.use(authenticateToken, requireRole("agent", "admin"), enforcePasswordChange);
 
-// Create property
-r.post("/properties", createProperty);
+router.get("/properties", listMine);
+router.post("/properties", createProperty);
+router.post("/properties/:id/submit", submitForApproval);
+router.patch("/properties/:id", updateProperty);
+router.delete("/properties/:id", deleteProperty);
 
-// Submit for approval (if you use a separate draft → submit flow)
-r.post("/properties/:id/submit", submitForApproval);
-
-// Update & delete (owner or admin)
-r.patch("/properties/:id", updateProperty);
-r.delete("/properties/:id", deleteProperty);
-
-export default r;
+export default router;
