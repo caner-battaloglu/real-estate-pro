@@ -1,23 +1,25 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import "./fonts.css";
+import { AuthProvider } from "@/lib/auth-context";
+import { Toaster } from "sonner";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Real Estate Pro",
-  description: "Find, list, and manage properties.",
+  description: "Admin + Agent portal",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main className="container py-8">{children}</main>
-        <footer className="border-t py-8 mt-16 text-sm text-gray-500">
-          <div className="container">
-            © {new Date().getFullYear()} Real Estate Pro
-          </div>
-        </footer>
+        <AuthProvider>
+          <SiteHeader />
+          <main className="min-h-[calc(100vh-14rem)]">{children}</main>
+          <SiteFooter />
+          <Toaster richColors />
+        </AuthProvider>
       </body>
     </html>
   );

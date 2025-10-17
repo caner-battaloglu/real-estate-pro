@@ -1,32 +1,67 @@
-/* Tailwind v4 */
 @import "tailwindcss";
 
-/* Optional config via CSS (v4-style) */
-@theme {
-  --shadow-card: 0 6px 24px rgba(0,0,0,0.06);
-  --radius-2xl: 1.25rem;
-  --ring-brand: 0 0 0 3px rgba(37,99,235,0.25);
+/* Light/Dark design tokens */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --primary: 258 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16.3% 46.9%;
+
+    --accent: 258 90% 96%;
+    --accent-foreground: 258 84% 28%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 258 84% 60%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 5.5%;
+    --card-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 258 44% 20%;
+    --accent-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 258 84% 60%;
+  }
+
+  /* Use raw CSS for base styles (v4-friendly) */
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
-/* If your files live in unusual places, help Tailwind find them: */
-@source "./src/**/*.{ts,tsx,js,jsx}";
-
-/* Base visuals */
-html, body { height: 100%; }
-body { background: linear-gradient(180deg, #fafbff 0%, #ffffff 30%); color: #111827; }
-::selection { background: #dbeafe; }
-
-/* Components */
-.card { border-radius: var(--radius-2xl); box-shadow: var(--shadow-card); background: white; transition: box-shadow .2s ease, transform .2s ease; }
-.card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.10); }
-
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.75rem; padding: 0.625rem 1rem; font-weight: 600; transition: background-color .2s ease, color .2s ease, box-shadow .2s ease; }
-.btn-primary { background: #2563eb; color: white; }
-.btn-primary:hover { background: #1d4ed8; }
-.btn-outline { border: 1px solid #e5e7eb; color: #111827; background: white; }
-.btn-outline:hover { background: #f9fafb; }
-
-.input, .select { border: 1px solid #e5e7eb; background: white; border-radius: 0.75rem; padding: 0.625rem 0.75rem; outline: none; transition: box-shadow .2s ease, border-color .2s ease; }
-.input:focus, .select:focus { border-color: #2563eb; box-shadow: var(--ring-brand); }
-
-.badge { display: inline-flex; align-items: center; height: 1.5rem; padding: 0 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; background: rgba(17,24,39,0.06); color: #111827; backdrop-filter: saturate(180%) blur(10px); }
+/* src/app/globals.css — add near the bottom */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+}

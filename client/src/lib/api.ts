@@ -1,29 +1,73 @@
 // src/lib/api.ts
-type ApiResult<T> = { data: T | null; error: string | null };
+export type TokenGetter = () => string | null;
 
-// Prefer NEXT_PUBLIC_ (works in both Server/Client components). Fallback to server-only if you ever add it.
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.API_BASE_URL ?? "";
+let getAccessToken: TokenGetter = () => null;
+export const __setAccessTokenGetter = (fn: TokenGetter) => {
+  getAccessToken = fn;
+};
 
-function buildUrl(path: string) {
-  if (!BASE) throw new Error("API base URL missing. Set NEXT_PUBLIC_API_BASE_URL in .env.local");
-  // Allow callers to pass "/properties?x=1" or "properties?x=1"
-  const normalized = path.startsWith("/") ? path.slice(1) : path;
-  return new URL(normalized, BASE.endsWith("/") ? BASE : BASE + "/").toString();
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
+if (!API_BASE) {
+  // Optional: warn early in dev if env is missing  // eslint-disable-next-line no-console
+  console.warn("NEXT_PUBLIC_API_BASE is not set");
 }
 
-export async function get<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
-  try {
-    const url = buildUrl(path);
-    const res = await fetch(url, { ...init, cache: "no-store" });
+/**
+ * Smart fetch:
+ * - attaches Bearer token (from AuthContext)
+ * - sends cookies (for refresh)
+ * - on 401, calls /api/auth/refresh, then retries once
+ */
+export async function apiFetch<T>(
+  path: string,
+  init: RequestInit = {}
+): Promise<T> {
+  async function doFetch(retry = false): Promise<T> {
+    // Build headers fresh each attempt so we pick up a newly refreshed token.
+    const headers = new Headers(init.headers || {});
+    headers.set("Content-Type", "application/json");
+    const token = getAccessToken();
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers,
+      credentials: "include", // include refresh cookie
+    });
+
+    if (res.status === 401 && !retry) {
+      // Try refresh once
+      const r = await fetch(`${API_BASE}/api/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (r.ok) {
+        // If your backend returns the new access token in JSON (dev),
+        // broadcast it so AuthContext can update.
+        const data = await r.json().catch(() => ({} as unknown));
+        if (data?.token && typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("token:refreshed", { detail: data.token })
+          );
+        }
+        // Retry original request once, with a fresh Authorization header.
+        return doFetch(true);
+      }
+
+      // If refresh failed, surface 401 cleanly
+      const txt = await res.text().catch(() => "");
+      throw new Error(txt || "Unauthorized");
+    }
 
     if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      return { data: null, error: text || `HTTP ${res.status}` };
+      const txt = await res.text().catch(() => "");
+      throw new Error(txt || `HTTP ${res.status}`);
     }
-    const json = (await res.json()) as T;
-    return { data: json, error: null };
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Network error";
-    return { data: null, error: message };
+
+    // Successful JSON response
+    return (await res.json()) as T;
   }
+
+  return doFetch(false);
 }
