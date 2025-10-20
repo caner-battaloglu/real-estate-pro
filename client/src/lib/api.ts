@@ -6,10 +6,13 @@ export const __setAccessTokenGetter = (fn: TokenGetter) => {
   getAccessToken = fn;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
-if (!API_BASE) {
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
+console.log("process.env.NEXT_PUBLIC_API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+console.log("process.env.NEXT_PUBLIC_API_BASE:", process.env.NEXT_PUBLIC_API_BASE);
+console.log("API_BASE:", API_BASE); // Debug log
+if (!process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE) {
   // Optional: warn early in dev if env is missing  // eslint-disable-next-line no-console
-  console.warn("NEXT_PUBLIC_API_BASE is not set");
+  console.warn("NEXT_PUBLIC_API_BASE_URL is not set, using default: http://localhost:3000");
 }
 
 /**
@@ -29,7 +32,9 @@ export async function apiFetch<T>(
     const token = getAccessToken();
     if (token) headers.set("Authorization", `Bearer ${token}`);
 
-    const res = await fetch(`${API_BASE}${path}`, {
+    const fullUrl = `${API_BASE}${path}`;
+    console.log("Making request to:", fullUrl);
+    const res = await fetch(fullUrl, {
       ...init,
       headers,
       credentials: "include", // include refresh cookie

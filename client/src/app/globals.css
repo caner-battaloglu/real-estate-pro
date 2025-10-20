@@ -1,39 +1,14 @@
 @import "tailwindcss";
 
-/* Light/Dark design tokens */
+
+/* Default = DARK. Optional light theme via .light */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-
-    --primary: 258 90% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16.3% 46.9%;
-
-    --accent: 258 90% 96%;
-    --accent-foreground: 258 84% 28%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 258 84% 60%;
-  }
-
-  .dark {
+    /* dark tokens (default) */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 5.5%;
+    --card: 222.2 84% 6.5%;
     --card-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -42,26 +17,75 @@
     --accent: 258 44% 20%;
     --accent-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 258 84% 60%;
+    --popover: var(--card);
+    --popover-foreground: var(--card-foreground);
+
+    --border: 217.2 19% 20%;
+    --input: 217.2 19% 20%;
+    --ring: 219 90% 55%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --radius: 0.75rem;
   }
 
-  /* Use raw CSS for base styles (v4-friendly) */
-  * {
-    border-color: hsl(var(--border));
+  /* Optional LIGHT theme */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16.3% 46.9%;
+
+    --accent: 258 90% 96%;
+    --accent-foreground: 258 84% 28%;
+
+    --popover: var(--card);
+    --popover-foreground: var(--card-foreground);
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 258 84% 60%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
   }
+
+  html { color-scheme: dark; } /* default dark */
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
 }
 
-/* src/app/globals.css — add near the bottom */
-@layer utilities {
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none;    /* Firefox */
-  }
-  .no-scrollbar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+/* Subtle helpers so borders don’t look harsh on dark */
+@layer base {
+  * { border-color: hsl(var(--border)); }
 }
+
+@layer utilities {
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
+
+/* tiny utility used in a few spots */
+.btn {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition;
+}
+
+/* use CSS vars directly (no @apply of bg-primary) */
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.btn-primary:hover { opacity: .9; }
