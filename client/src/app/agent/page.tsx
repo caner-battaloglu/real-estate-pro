@@ -3,10 +3,6 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { 
-  Users, 
-  Building2, 
-  TrendingUp, 
-  DollarSign,
   Plus,
   Eye,
   Edit,
@@ -14,8 +10,16 @@ import {
   MoreHorizontal,
   Search,
   Filter,
-  Download,
-  RefreshCw
+  TrendingUp,
+  DollarSign,
+  Building2,
+  Users,
+  Star,
+  Calendar,
+  MapPin,
+  Bed,
+  Bath,
+  Square
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -26,112 +30,126 @@ import { useAuthStore } from "@/lib/store/auth"
 import { formatPrice } from "@/lib/utils"
 
 // Dummy data
-const stats = [
+const agentStats = [
   {
-    title: "Total Properties",
-    value: "1,247",
-    change: "+12%",
+    title: "My Properties",
+    value: "12",
+    change: "+2",
     changeType: "positive" as const,
     icon: Building2,
     color: "text-blue-600"
   },
   {
-    title: "Active Agents",
-    value: "89",
-    change: "+5%",
+    title: "Total Views",
+    value: "2,847",
+    change: "+15%",
     changeType: "positive" as const,
-    icon: Users,
+    icon: Eye,
     color: "text-green-600"
   },
   {
-    title: "Pending Approvals",
-    value: "23",
-    change: "-8%",
+    title: "Pending Approval",
+    value: "3",
+    change: "-1",
     changeType: "negative" as const,
-    icon: Eye,
+    icon: TrendingUp,
     color: "text-orange-600"
   },
   {
-    title: "Total Revenue",
-    value: "$2.4M",
-    change: "+18%",
+    title: "Commission Earned",
+    value: "$24,500",
+    change: "+8%",
     changeType: "positive" as const,
     icon: DollarSign,
     color: "text-purple-600"
   }
 ]
 
-const recentProperties = [
+const myProperties = [
   {
     id: "1",
     title: "Modern Downtown Apartment",
     price: 450000,
-    status: "pending",
-    agent: "Sarah Johnson",
+    status: "approved",
+    views: 234,
+    inquiries: 12,
     createdAt: "2024-01-15",
-    location: "New York, NY"
+    location: "New York, NY",
+    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=300&h=200&fit=crop"
   },
   {
     id: "2",
     title: "Luxury Family House",
     price: 750000,
-    status: "approved",
-    agent: "Michael Chen",
+    status: "pending",
+    views: 189,
+    inquiries: 8,
     createdAt: "2024-01-14",
-    location: "Los Angeles, CA"
+    location: "Los Angeles, CA",
+    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=300&h=200&fit=crop"
   },
   {
     id: "3",
     title: "Contemporary Condo",
     price: 320000,
-    status: "rejected",
-    agent: "Emily Rodriguez",
+    status: "approved",
+    views: 156,
+    inquiries: 5,
     createdAt: "2024-01-13",
-    location: "Miami, FL"
+    location: "Miami, FL",
+    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&h=200&fit=crop"
   },
   {
     id: "4",
     title: "Charming Townhouse",
     price: 580000,
-    status: "pending",
-    agent: "David Wilson",
+    status: "draft",
+    views: 0,
+    inquiries: 0,
     createdAt: "2024-01-12",
-    location: "Boston, MA"
+    location: "Boston, MA",
+    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=300&h=200&fit=crop"
   }
 ]
 
-const recentAgents = [
+const recentInquiries = [
   {
     id: "1",
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    properties: 12,
-    status: "active",
-    joinedAt: "2024-01-10"
+    property: "Modern Downtown Apartment",
+    client: "John Smith",
+    email: "john@example.com",
+    phone: "+1 (555) 123-4567",
+    message: "Interested in viewing this property. Available this weekend?",
+    createdAt: "2024-01-15",
+    status: "new"
   },
   {
     id: "2",
-    name: "Michael Chen",
-    email: "michael@example.com",
-    properties: 8,
-    status: "active",
-    joinedAt: "2024-01-08"
+    property: "Luxury Family House",
+    client: "Sarah Johnson",
+    email: "sarah@example.com",
+    phone: "+1 (555) 234-5678",
+    message: "Looking for a family home with good schools nearby.",
+    createdAt: "2024-01-14",
+    status: "contacted"
   },
   {
     id: "3",
-    name: "Emily Rodriguez",
-    email: "emily@example.com",
-    properties: 15,
-    status: "inactive",
-    joinedAt: "2024-01-05"
+    property: "Contemporary Condo",
+    client: "Mike Chen",
+    email: "mike@example.com",
+    phone: "+1 (555) 345-6789",
+    message: "Is this property still available? What's the HOA fee?",
+    createdAt: "2024-01-13",
+    status: "viewing_scheduled"
   }
 ]
 
-export default function AdminDashboard() {
+export default function AgentDashboard() {
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<"overview" | "properties" | "agents">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "properties" | "inquiries">("overview")
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "agent" && user?.role !== "admin") {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -140,7 +158,7 @@ export default function AdminDashboard() {
             <CardHeader className="text-center">
               <CardTitle>Access Denied</CardTitle>
               <CardDescription>
-                You need admin privileges to access this page.
+                You need agent privileges to access this page.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
@@ -163,26 +181,26 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Agent Dashboard</h1>
               <p className="text-muted-foreground">
-                Welcome back, {user?.firstName}! Here's what's happening with your platform.
+                Welcome back, {user?.firstName}! Manage your properties and client inquiries.
               </p>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export Data
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Viewing
               </Button>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Agent
+                Add Property
               </Button>
             </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat, index) => (
+            {agentStats.map((stat, index) => (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -225,14 +243,14 @@ export default function AdminDashboard() {
                 size="sm"
                 onClick={() => setActiveTab("properties")}
               >
-                Properties
+                My Properties
               </Button>
               <Button
-                variant={activeTab === "agents" ? "default" : "ghost"}
+                variant={activeTab === "inquiries" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setActiveTab("agents")}
+                onClick={() => setActiveTab("inquiries")}
               >
-                Agents
+                Client Inquiries
               </Button>
             </div>
 
@@ -246,55 +264,7 @@ export default function AdminDashboard() {
                       <div>
                         <CardTitle>Recent Properties</CardTitle>
                         <CardDescription>
-                          Latest property submissions requiring review
-                        </CardDescription>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Refresh
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentProperties.map((property) => (
-                        <div key={property.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="space-y-1">
-                            <h4 className="font-medium">{property.title}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {property.location} • {property.agent}
-                            </p>
-                            <p className="text-sm font-medium text-primary">
-                              {formatPrice(property.price)}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge 
-                              variant={
-                                property.status === "approved" ? "success" :
-                                property.status === "pending" ? "warning" : "destructive"
-                              }
-                            >
-                              {property.status}
-                            </Badge>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Recent Agents */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Recent Agents</CardTitle>
-                        <CardDescription>
-                          Newly registered agents on the platform
+                          Your latest property listings
                         </CardDescription>
                       </div>
                       <Button variant="outline" size="sm">
@@ -304,22 +274,82 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {recentAgents.map((agent) => (
-                        <div key={agent.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="space-y-1">
-                            <h4 className="font-medium">{agent.name}</h4>
-                            <p className="text-sm text-muted-foreground">{agent.email}</p>
-                            <p className="text-sm">
-                              {agent.properties} properties • Joined {new Date(agent.joinedAt).toLocaleDateString()}
+                      {myProperties.slice(0, 3).map((property) => (
+                        <div key={property.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={property.image} 
+                              alt={property.title}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <h4 className="font-medium">{property.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              <MapPin className="h-3 w-3 inline mr-1" />
+                              {property.location}
+                            </p>
+                            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                              <span>{property.views} views</span>
+                              <span>{property.inquiries} inquiries</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Badge 
+                              variant={
+                                property.status === "approved" ? "success" :
+                                property.status === "pending" ? "warning" : "secondary"
+                              }
+                            >
+                              {property.status}
+                            </Badge>
+                            <p className="text-sm font-medium text-primary mt-1">
+                              {formatPrice(property.price)}
                             </p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant={agent.status === "active" ? "success" : "secondary"}>
-                              {agent.status}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Inquiries */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Recent Inquiries</CardTitle>
+                        <CardDescription>
+                          Latest client inquiries and messages
+                        </CardDescription>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        View All
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentInquiries.map((inquiry) => (
+                        <div key={inquiry.id} className="p-4 border rounded-lg">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-medium">{inquiry.client}</h4>
+                              <p className="text-sm text-muted-foreground">{inquiry.property}</p>
+                            </div>
+                            <Badge 
+                              variant={
+                                inquiry.status === "new" ? "default" :
+                                inquiry.status === "contacted" ? "secondary" : "success"
+                              }
+                            >
+                              {inquiry.status.replace("_", " ")}
                             </Badge>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{inquiry.message}</p>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{inquiry.email} • {inquiry.phone}</span>
+                            <span>{new Date(inquiry.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                       ))}
@@ -335,9 +365,9 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Property Management</CardTitle>
+                      <CardTitle>My Properties</CardTitle>
                       <CardDescription>
-                        Manage and approve property listings
+                        Manage your property listings
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -358,31 +388,41 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentProperties.map((property) => (
-                      <div key={property.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="font-medium">{property.title}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {property.location} • Listed by {property.agent}
-                            </p>
-                            <p className="text-sm font-medium text-primary">
-                              {formatPrice(property.price)}
-                            </p>
+                    {myProperties.map((property) => (
+                      <div key={property.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                        <div className="h-20 w-20 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                          <img 
+                            src={property.image} 
+                            alt={property.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h4 className="font-medium">{property.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            <MapPin className="h-3 w-3 inline mr-1" />
+                            {property.location}
+                          </p>
+                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                            <span>{property.views} views</span>
+                            <span>{property.inquiries} inquiries</span>
+                            <span>Listed {new Date(property.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge 
-                            variant={
-                              property.status === "approved" ? "success" :
-                              property.status === "pending" ? "warning" : "destructive"
-                            }
-                          >
-                            {property.status}
-                          </Badge>
+                        <div className="text-right space-y-2">
+                          <div>
+                            <Badge 
+                              variant={
+                                property.status === "approved" ? "success" :
+                                property.status === "pending" ? "warning" : "secondary"
+                              }
+                            >
+                              {property.status}
+                            </Badge>
+                          </div>
+                          <p className="text-lg font-semibold text-primary">
+                            {formatPrice(property.price)}
+                          </p>
                           <div className="flex items-center space-x-1">
                             <Button variant="ghost" size="icon">
                               <Eye className="h-4 w-4" />
@@ -391,7 +431,7 @@ export default function AdminDashboard() {
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
@@ -402,15 +442,15 @@ export default function AdminDashboard() {
               </Card>
             )}
 
-            {/* Agents Tab */}
-            {activeTab === "agents" && (
+            {/* Inquiries Tab */}
+            {activeTab === "inquiries" && (
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Agent Management</CardTitle>
+                      <CardTitle>Client Inquiries</CardTitle>
                       <CardDescription>
-                        Manage agent accounts and permissions
+                        Manage client inquiries and communications
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -418,46 +458,56 @@ export default function AdminDashboard() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type="text"
-                          placeholder="Search agents..."
+                          placeholder="Search inquiries..."
                           className="h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Agent
+                      <Button variant="outline">
+                        <Filter className="h-4 w-4 mr-2" />
+                        Filters
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentAgents.map((agent) => (
-                      <div key={agent.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                            <Users className="h-6 w-6 text-muted-foreground" />
-                          </div>
+                    {recentInquiries.map((inquiry) => (
+                      <div key={inquiry.id} className="p-4 border rounded-lg">
+                        <div className="flex items-start justify-between mb-3">
                           <div className="space-y-1">
-                            <h4 className="font-medium">{agent.name}</h4>
-                            <p className="text-sm text-muted-foreground">{agent.email}</p>
-                            <p className="text-sm">
-                              {agent.properties} properties • Joined {new Date(agent.joinedAt).toLocaleDateString()}
-                            </p>
+                            <h4 className="font-medium">{inquiry.client}</h4>
+                            <p className="text-sm text-muted-foreground">{inquiry.property}</p>
+                            <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                              <span>{inquiry.email}</span>
+                              <span>•</span>
+                              <span>{inquiry.phone}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge 
+                              variant={
+                                inquiry.status === "new" ? "default" :
+                                inquiry.status === "contacted" ? "secondary" : "success"
+                              }
+                            >
+                              {inquiry.status.replace("_", " ")}
+                            </Badge>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={agent.status === "active" ? "success" : "secondary"}>
-                            {agent.status}
-                          </Badge>
-                          <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="icon">
-                              <Eye className="h-4 w-4" />
+                        <p className="text-sm text-muted-foreground mb-3">{inquiry.message}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(inquiry.createdAt).toLocaleDateString()}
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="outline" size="sm">
+                              Reply
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
+                            <Button variant="outline" size="sm">
+                              Schedule Viewing
                             </Button>
                           </div>
                         </div>
@@ -473,3 +523,5 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+

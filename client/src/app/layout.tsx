@@ -1,37 +1,72 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
 
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { Toaster } from "sonner";
-import { AuthProvider } from "@/lib/auth-context";
-
-
-
-
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-title: {
-default: "Real Estate Pro",
-template: "%s · Real Estate Pro",
-},
-description: "Modern real estate platform (Next.js 14 + TS)",
-metadataBase: new URL("https://example.com"),
-icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
+  title: "RealEstate Pro - Find Your Dream Property",
+  description: "Discover your perfect property with our comprehensive real estate platform. Connect with expert agents, explore thousands of listings, and make informed decisions.",
+  keywords: ["real estate", "properties", "homes", "apartments", "agents", "buying", "selling"],
+  authors: [{ name: "RealEstate Pro Team" }],
+  creator: "RealEstate Pro",
+  publisher: "RealEstate Pro",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://realestate-pro.com"),
+  openGraph: {
+    title: "RealEstate Pro - Find Your Dream Property",
+    description: "Discover your perfect property with our comprehensive real estate platform.",
+    url: "https://realestate-pro.com",
+    siteName: "RealEstate Pro",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "RealEstate Pro",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RealEstate Pro - Find Your Dream Property",
+    description: "Discover your perfect property with our comprehensive real estate platform.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code",
+  },
+}
 
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-return (
-<html lang="en" className="dark">
-<body className="min-h-dvh bg-background text-foreground antialiased">
-<AuthProvider>
-<SiteHeader />
-<main className="min-h-[calc(100dvh-14rem)]">{children}</main>
-<SiteFooter />
-<Toaster richColors />
-</AuthProvider>
-</body>
-</html>
-);
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <div className="relative flex min-h-screen flex-col">
+          <div className="flex-1">{children}</div>
+        </div>
+      </body>
+    </html>
+  )
 }
