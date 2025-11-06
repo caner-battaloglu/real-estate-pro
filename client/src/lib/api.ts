@@ -1,3 +1,5 @@
+import type { Property, Agent } from "@/types";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export class ApiError extends Error {
@@ -57,19 +59,19 @@ export function handleApiError(error: unknown): string {
 
 export const propertiesApi = {
   async getAll() {
-    return apiFetch<{ items: any[] }>("/api/properties");
+    return apiFetch<{ items: Property[] }>("/api/properties");
   },
   async getById(id: string) {
-    return apiFetch<{ property: any }>(`/api/properties/${id}`);
+    return apiFetch<{ property: Property }>(`/api/properties/${id}`);
   },
-  async create(data: any) {
-    return apiFetch<{ property: any }>("/api/properties", {
+  async create(data: Partial<Property>) {
+    return apiFetch<{ property: Property }>("/api/properties", {
       method: "POST",
       body: JSON.stringify(data),
     });
   },
-  async update(id: string, data: any) {
-    return apiFetch<{ property: any }>(`/api/properties/${id}`, {
+  async update(id: string, data: Partial<Property>) {
+    return apiFetch<{ property: Property }>(`/api/properties/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
@@ -83,9 +85,9 @@ export const propertiesApi = {
 
 export const agentsApi = {
   async getAll() {
-    return apiFetch<{ items: any[] }>("/api/agents");
+    return apiFetch<{ items: Agent[] }>("/api/agents");
   },
   async getById(id: string) {
-    return apiFetch<{ agent: any }>(`/api/agents/${id}`);
+    return apiFetch<{ agent: Agent }>(`/api/agents/${id}`);
   },
 };
