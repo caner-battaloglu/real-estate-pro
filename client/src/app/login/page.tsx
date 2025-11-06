@@ -212,15 +212,15 @@ export default function LoginPage() {
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Badge variant="secondary">Admin</Badge>
-                  <p className="text-sm">admin@example.com / password123</p>
+                  <p className="text-sm">admin@realestate.com / Admin123!</p>
                 </div>
                 <div className="space-y-2">
                   <Badge variant="secondary">Agent</Badge>
-                  <p className="text-sm">agent@example.com / password123</p>
+                  <p className="text-sm">agent1@realestate.com / Agent123!</p>
                 </div>
                 <div className="space-y-2">
                   <Badge variant="secondary">User</Badge>
-                  <p className="text-sm">user@example.com / password123</p>
+                  <p className="text-sm">user1@example.com / User123!</p>
                 </div>
               </CardContent>
             </Card>
