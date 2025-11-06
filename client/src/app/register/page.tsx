@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { useAuthStore } from "@/lib/store/auth"
+import { useAuth } from "@/lib/auth-context"
 
 const features = [
   "Access to thousands of properties",
@@ -34,17 +34,16 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   
-  const router = useRouter()
-  const { setAuth } = useAuthStore()
+  const { register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match")
       return
     }
-    
+
     if (!formData.agreeToTerms) {
       alert("Please agree to the terms and conditions")
       return
@@ -53,26 +52,14 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data
-      const mockUser = {
-        id: "1",
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        role: "user" as const,
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-        isActive: true
-      }
-
-      const mockToken = "mock-jwt-token"
-      
-      setAuth(mockUser, mockToken)
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Registration failed:", error)
+      await register(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      )
+    } catch (error: any) {
+      alert(error.message || "Registration failed")
     } finally {
       setIsLoading(false)
     }

@@ -1,13 +1,37 @@
 import { Router } from "express";
-import { authenticateToken, requireRole } from "../middleware/auth"; // your existing middleware
-import { createAgentByAdmin } from "../controllers/adminController";
+import { authenticateToken, requireRole } from "../middleware/auth";
+import {
+  createAgentByAdmin,
+  listAllAgents,
+  updateAgent,
+  deleteAgent,
+  approveProperty,
+  rejectProperty,
+  listPendingProperties,
+  listAllProperties,
+  updatePropertyByAdmin,
+  deletePropertyByAdmin,
+  getDashboardStats,
+  getAgentPerformance
+} from "../controllers/adminController";
 
 const router = Router();
 
-// All admin routes require admin
 router.use(authenticateToken, requireRole("admin"));
 
-// POST /api/admin/agents
 router.post("/agents", createAgentByAdmin);
+router.get("/agents", listAllAgents);
+router.patch("/agents/:id", updateAgent);
+router.delete("/agents/:id", deleteAgent);
+
+router.get("/properties/pending", listPendingProperties);
+router.get("/properties", listAllProperties);
+router.patch("/properties/:id", updatePropertyByAdmin);
+router.delete("/properties/:id", deletePropertyByAdmin);
+router.post("/properties/:id/approve", approveProperty);
+router.post("/properties/:id/reject", rejectProperty);
+
+router.get("/dashboard/stats", getDashboardStats);
+router.get("/agents/:id/performance", getAgentPerformance);
 
 export default router;

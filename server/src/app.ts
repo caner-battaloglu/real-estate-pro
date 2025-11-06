@@ -11,6 +11,8 @@ import agentRoutes from "./routes/agentRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import bookingRoutes from "./routes/bookingRoutes";
+import userRoutes from "./routes/userRoutes";
 
 
 
@@ -34,6 +36,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/agents", agentRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/users", userRoutes);
 
 
 app.use(errorHandler);

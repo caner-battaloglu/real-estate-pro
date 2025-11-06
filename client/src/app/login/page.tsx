@@ -4,13 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Building2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { useAuthStore } from "@/lib/store/auth"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -18,43 +18,20 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  
-  const router = useRouter()
-  const { setAuth } = useAuthStore()
+
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data
-      const mockUser = {
-        id: "1",
-        email: email,
-        firstName: "John",
-        lastName: "Doe",
-        role: email.includes("admin") ? "admin" : email.includes("agent") ? "agent" : "user",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-        isActive: true
-      }
-
-      const mockToken = "mock-jwt-token"
-      
-      setAuth(mockUser, mockToken)
-      
-      // Redirect based on role
-      if (mockUser.role === "admin") {
-        router.push("/admin")
-      } else if (mockUser.role === "agent") {
-        router.push("/agent")
-      } else {
-        router.push("/dashboard")
-      }
-    } catch (error) {
-      console.error("Login failed:", error)
+      await login(email, password)
+      toast.success("Login successful")
+    } catch (error: any) {
+      toast.error("Login failed", {
+        description: error.message || "Invalid credentials"
+      })
     } finally {
       setIsLoading(false)
     }

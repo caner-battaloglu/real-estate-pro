@@ -233,7 +233,7 @@ export default function AgentsPage() {
                   <div className="relative mx-auto mb-4">
                     <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-background shadow-lg">
                       <Image
-                        src={agent.avatar}
+                        src={agent.avatar || "/placeholder-avatar.jpg"}
                         alt={`${agent.firstName} ${agent.lastName}`}
                         width={96}
                         height={96}
