@@ -65,6 +65,9 @@
    - Fetch wrapper with authentication
    - Error handling
    - JWT token management
+   - `propertiesApi` helper functions
+   - `agentsApi` helper functions
+   - `handleApiError` utility
 
 5. **`client/src/lib/auth-context.tsx`** - Authentication context
    - React context for auth state

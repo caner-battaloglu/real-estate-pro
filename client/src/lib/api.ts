@@ -44,3 +44,48 @@ export async function apiFetch<T>(
 
   return response.json();
 }
+
+export function handleApiError(error: unknown): string {
+  if (error instanceof ApiError) {
+    return error.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "An unexpected error occurred";
+}
+
+export const propertiesApi = {
+  async getAll() {
+    return apiFetch<{ items: any[] }>("/api/properties");
+  },
+  async getById(id: string) {
+    return apiFetch<{ property: any }>(`/api/properties/${id}`);
+  },
+  async create(data: any) {
+    return apiFetch<{ property: any }>("/api/properties", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+  async update(id: string, data: any) {
+    return apiFetch<{ property: any }>(`/api/properties/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+  async delete(id: string) {
+    return apiFetch<{ message: string }>(`/api/properties/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+export const agentsApi = {
+  async getAll() {
+    return apiFetch<{ items: any[] }>("/api/agents");
+  },
+  async getById(id: string) {
+    return apiFetch<{ agent: any }>(`/api/agents/${id}`);
+  },
+};
