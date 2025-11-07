@@ -23,8 +23,8 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
-  credentials: true, // VERY important for cookies
+  origin: process.env.CLIENT_ORIGIN || ["http://localhost:3000", "http://localhost:3001"],
+  credentials: true,
 }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
 app.use(cookieParser());
