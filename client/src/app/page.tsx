@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -24,49 +24,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
 import { formatPrice } from "@/lib/utils"
+import { propertiesApi, handleApiError } from "@/lib/api"
 
-// Dummy data
-const featuredProperties = [
-  {
-    id: "1",
-    title: "Modern Downtown Apartment",
-    price: 450000,
-    type: "apartment",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
-    location: "Downtown, New York",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop",
-    featured: true,
-    rating: 4.8,
-  },
-  {
-    id: "2",
-    title: "Luxury Family House",
-    price: 750000,
-    type: "house",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 2500,
-    location: "Suburbs, California",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop",
-    featured: true,
-    rating: 4.9,
-  },
-  {
-    id: "3",
-    title: "Contemporary Condo",
-    price: 320000,
-    type: "condo",
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 800,
-    location: "City Center, Miami",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop",
-    featured: true,
-    rating: 4.7,
-  },
-]
+interface Property {
+  _id: string;
+  title: string;
+  price: number;
+  type: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  images: string[];
+  address: {
+    line1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  status: string;
+  agent: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatar?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
 
 const features = [
   {
@@ -100,6 +85,33 @@ const stats = [
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadFeaturedProperties()
+  }, [])
+
+  const loadFeaturedProperties = async () => {
+    try {
+      const data = await propertiesApi.getAll()
+      console.log('Loaded properties from backend:', data)
+      
+      // Filter for approved properties and take first 3 as featured
+      const approvedProperties = (data.properties || data).filter((property: Property) => 
+        property.status === 'approved'
+      ).slice(0, 3)
+      
+      console.log(`Found ${approvedProperties.length} approved properties for featured section`)
+      setFeaturedProperties(approvedProperties)
+    } catch (error) {
+      console.error("Failed to load featured properties:", error)
+      // Don't show error to user on home page, just show empty state
+      setFeaturedProperties([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -201,63 +213,83 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featuredProperties.map((property, index) => (
-              <motion.div
-                key={property.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
-              >
-                <Card className="group overflow-hidden transition-all hover:shadow-lg">
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={property.image}
-                      alt={property.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <Badge variant="secondary">Featured</Badge>
-                    </div>
-                    <div className="absolute top-4 right-4 flex items-center space-x-1 bg-white/90 rounded-full px-2 py-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs font-medium">{property.rating}</span>
-                    </div>
-                  </div>
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <div className="h-48 bg-gray-200 animate-pulse" />
                   <CardContent className="p-6">
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-lg">{property.title}</h3>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {property.location}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <Bed className="h-4 w-4 mr-1" />
-                          {property.bedrooms}
-                        </div>
-                        <div className="flex items-center">
-                          <Bath className="h-4 w-4 mr-1" />
-                          {property.bathrooms}
-                        </div>
-                        <div className="flex items-center">
-                          <Square className="h-4 w-4 mr-1" />
-                          {property.area} sq ft
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between pt-2">
-                        <span className="text-2xl font-bold text-primary">
-                          {formatPrice(property.price)}
-                        </span>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/properties/${property.id}`}>View Details</Link>
-                        </Button>
-                      </div>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2" />
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
+              ))
+            ) : featuredProperties.length > 0 ? (
+              featuredProperties.map((property, index) => (
+                <motion.div
+                  key={property._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                >
+                  <Card className="group overflow-hidden transition-all hover:shadow-lg">
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={property.images[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=300&fit=crop"}
+                        alt={property.title}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <Badge variant="secondary">Featured</Badge>
+                      </div>
+                      <div className="absolute top-4 right-4 flex items-center space-x-1 bg-white/90 rounded-full px-2 py-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs font-medium">4.8</span>
+                      </div>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">{property.title}</h3>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {property.address.city}, {property.address.state}
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <Bed className="h-4 w-4 mr-1" />
+                            {property.bedrooms}
+                          </div>
+                          <div className="flex items-center">
+                            <Bath className="h-4 w-4 mr-1" />
+                            {property.bathrooms}
+                          </div>
+                          <div className="flex items-center">
+                            <Square className="h-4 w-4 mr-1" />
+                            {property.area} sq ft
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-2">
+                          <span className="text-2xl font-bold text-primary">
+                            {formatPrice(property.price)}
+                          </span>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/properties/${property._id}`}>View Details</Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">No featured properties available at the moment.</p>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-12">

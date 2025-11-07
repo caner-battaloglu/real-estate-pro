@@ -11,6 +11,8 @@ import agentRoutes from "./routes/agentRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import bookingRoutes from "./routes/bookingRoutes";
+import userRoutes from "./routes/userRoutes";
 
 
 
@@ -19,10 +21,45 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
+const normalizeOrigin = (origin: string) => origin.replace(/\/$/, "").toLowerCase();
+
+const defaultOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
+];
+
+const configuredOrigins = (process.env.CLIENT_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = new Set<string>(
+  [...defaultOrigins, ...configuredOrigins].map((origin) => normalizeOrigin(origin))
+);
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("CORS allowed origins:", Array.from(allowedOrigins));
+}
+
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
-  credentials: true, // VERY important for cookies
+  origin: (origin, callback) => {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.has(normalizedOrigin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
 }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
 app.use(cookieParser());
@@ -34,6 +71,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/agents", agentRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/users", userRoutes);
 
 
 app.use(errorHandler);

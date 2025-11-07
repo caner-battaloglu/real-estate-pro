@@ -18,7 +18,7 @@ function normEmail(v: unknown) {
     .toLowerCase();
 }
 
-/** SELF-REGISTER — forces role='public' regardless of input */
+/** SELF-REGISTER — forces role='user' unless admin email in dev mode */
 export async function register(req: Request, res: Response) {
   try {
     const email = normEmail(req.body.email);
@@ -32,12 +32,17 @@ export async function register(req: Request, res: Response) {
     if (exists)
       return res.status(409).json({ error: "Email already registered" });
 
+    // Allow admin creation in development mode for specific email
+    const role = (process.env.NODE_ENV !== "production" && email === "admin@example.com") 
+      ? "admin" 
+      : "user";
+
     const user = await User.create({
       email,
       password,
       firstName: firstName ?? "",
       lastName: lastName ?? "",
-      role: "user",
+      role,
     });
 
     // Dev-mode email verification token (optional)

@@ -4,13 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Building2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { useAuthStore } from "@/lib/store/auth"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -18,43 +18,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  
-  const router = useRouter()
-  const { setAuth } = useAuthStore()
+
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data
-      const mockUser = {
-        id: "1",
-        email: email,
-        firstName: "John",
-        lastName: "Doe",
-        role: email.includes("admin") ? "admin" : email.includes("agent") ? "agent" : "user",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-        isActive: true
-      }
-
-      const mockToken = "mock-jwt-token"
-      
-      setAuth(mockUser, mockToken)
-      
-      // Redirect based on role
-      if (mockUser.role === "admin") {
-        router.push("/admin")
-      } else if (mockUser.role === "agent") {
-        router.push("/agent")
-      } else {
-        router.push("/dashboard")
-      }
-    } catch (error) {
-      console.error("Login failed:", error)
+      await login(email, password)
+      toast.success("Login successful")
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Invalid credentials"
+      toast.error("Login failed", { description: message })
     } finally {
       setIsLoading(false)
     }
@@ -63,7 +42,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="container py-12">
         <div className="flex items-center justify-center min-h-[80vh]">
           <motion.div
@@ -84,7 +63,7 @@ export default function LoginPage() {
                   </CardDescription>
                 </div>
               </CardHeader>
-              
+
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
@@ -206,7 +185,7 @@ export default function LoginPage() {
                     </Button>
                     <Button variant="outline" className="w-full">
                       <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                       </svg>
                       Twitter
                     </Button>
@@ -215,7 +194,7 @@ export default function LoginPage() {
 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-muted-foreground">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link href="/register" className="text-primary hover:underline">
                       Sign up
                     </Link>
@@ -235,15 +214,15 @@ export default function LoginPage() {
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Badge variant="secondary">Admin</Badge>
-                  <p className="text-sm">admin@example.com / password123</p>
+                  <p className="text-sm">admin@realestate.com / Admin123!</p>
                 </div>
                 <div className="space-y-2">
                   <Badge variant="secondary">Agent</Badge>
-                  <p className="text-sm">agent@example.com / password123</p>
+                  <p className="text-sm">agent1@realestate.com / Agent123!</p>
                 </div>
                 <div className="space-y-2">
                   <Badge variant="secondary">User</Badge>
-                  <p className="text-sm">user@example.com / password123</p>
+                  <p className="text-sm">user1@example.com / User123!</p>
                 </div>
               </CardContent>
             </Card>

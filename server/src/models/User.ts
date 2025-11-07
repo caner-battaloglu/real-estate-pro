@@ -12,6 +12,15 @@ export interface IUser extends Document {
   role: AppRole;
   isActive: boolean;
   favorites: Types.ObjectId[];
+  
+  // Agent-specific fields
+  phone?: string;
+  bio?: string;
+  specialties?: string[];
+  experience?: number;
+  avatar?: string;
+  rating?: number;
+  propertiesSold?: number;
 
   // Session + security
   refreshTokenHash?: string | null;
@@ -56,6 +65,15 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["user", "agent", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
     favorites: [{ type: Schema.Types.ObjectId, ref: "Property" }],
+
+    // Agent-specific fields
+    phone: { type: String, trim: true },
+    bio: { type: String, trim: true },
+    specialties: [{ type: String, trim: true }],
+    experience: { type: Number, min: 0 },
+    avatar: { type: String },
+    rating: { type: Number, min: 0, max: 5, default: 0 },
+    propertiesSold: { type: Number, min: 0, default: 0 },
 
     // session + security
     refreshTokenHash: { type: String, default: null, select: false },

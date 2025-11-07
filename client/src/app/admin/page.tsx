@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { useAuthStore } from "@/lib/store/auth"
+import { useAuth } from "@/lib/auth-context"
 import { formatPrice } from "@/lib/utils"
 
 // Dummy data
@@ -128,7 +128,7 @@ const recentAgents = [
 ]
 
 export default function AdminDashboard() {
-  const { user } = useAuthStore()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<"overview" | "properties" | "agents">("overview")
 
   if (user?.role !== "admin") {

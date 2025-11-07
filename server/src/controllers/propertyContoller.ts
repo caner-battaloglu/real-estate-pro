@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {asyncHandler} from "../middleware/asyncHandler";
 import { IProperty, Property } from "../models/Property";
+import { notifyPriceChange } from "../services/NotificationService";
 
 /**
  * Create a property (agent/admin)
@@ -132,7 +133,8 @@ export const updateProperty = asyncHandler(async (req: Request, res: Response) =
   const isAdmin = req.user!.role === "admin";
   if (!isOwner && !isAdmin) return res.status(403).json({ message: "Forbidden" });
 
-  // Apply allowed updates
+  const oldPrice = prop.price;
+
   const updatable = [
     "title",
     "description",
@@ -152,7 +154,6 @@ export const updateProperty = asyncHandler(async (req: Request, res: Response) =
     }
   }
 
-  // Optional rule: any edit reverts to pending for re-approval
   if (!isAdmin) {
     prop.status = "pending";
     prop.approvedBy = null;
@@ -161,6 +162,11 @@ export const updateProperty = asyncHandler(async (req: Request, res: Response) =
   }
 
   await prop.save();
+
+  if (req.body.price && req.body.price !== oldPrice) {
+    await notifyPriceChange(id, oldPrice, req.body.price);
+  }
+
   return res.json({ property: prop });
 });
 

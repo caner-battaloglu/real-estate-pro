@@ -4,13 +4,12 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Building2, Check } from "lucide-react"
-import { useRouter } from "next/navigation"
+
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { useAuthStore } from "@/lib/store/auth"
+import { useAuth } from "@/lib/auth-context"
 
 const features = [
   "Access to thousands of properties",
@@ -33,18 +32,17 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  
-  const router = useRouter()
-  const { setAuth } = useAuthStore()
+
+  const { register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match")
       return
     }
-    
+
     if (!formData.agreeToTerms) {
       alert("Please agree to the terms and conditions")
       return
@@ -53,29 +51,24 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data
-      const mockUser = {
-        id: "1",
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        role: "user" as const,
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-        isActive: true
-      }
-
-      const mockToken = "mock-jwt-token"
-      
-      setAuth(mockUser, mockToken)
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Registration failed:", error)
+      await register(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      )
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : "Registration failed"
+      alert(message)
     } finally {
       setIsLoading(false)
     }
+
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -85,7 +78,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="container py-12">
         <div className="flex items-center justify-center min-h-[80vh]">
           <motion.div
@@ -106,7 +99,7 @@ export default function RegisterPage() {
                   </CardDescription>
                 </div>
               </CardHeader>
-              
+
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
@@ -314,7 +307,7 @@ export default function RegisterPage() {
                     </Button>
                     <Button variant="outline" className="w-full">
                       <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                       </svg>
                       Twitter
                     </Button>
@@ -335,7 +328,7 @@ export default function RegisterPage() {
             {/* Features */}
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="text-lg">What you'll get</CardTitle>
+                <CardTitle className="text-lg">What you&apos;ll get</CardTitle>
                 <CardDescription>
                   Join our platform and unlock these benefits
                 </CardDescription>

@@ -5,13 +5,17 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const {token } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!token) router.replace("/login");
-  }, [token, router]);
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [user, loading, router]);
 
-  if (!token) return null;
+  if (loading) return <div>Loading...</div>;
+  if (!user) return null;
+
   return <>{children}</>;
 }
