@@ -21,28 +21,6 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
-const normalizeOrigin = (origin: string) => origin.replace(/\/$/, "").toLowerCase();
-
-const defaultOrigins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:3001",
-];
-
-const configuredOrigins = (process.env.CLIENT_ORIGIN || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-const allowedOrigins = new Set<string>(
-  [...defaultOrigins, ...configuredOrigins].map((origin) => normalizeOrigin(origin))
-);
-
-if (process.env.NODE_ENV !== "production") {
-  console.log("CORS allowed origins:", Array.from(allowedOrigins));
-}
-
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
