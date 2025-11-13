@@ -28,12 +28,10 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success("Login successful")
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Invalid credentials"
-      toast.error("Login failed", { description: message })
+    } catch (error: any) {
+      toast.error("Login failed", {
+        description: error.message || "Invalid credentials"
+      })
     } finally {
       setIsLoading(false)
     }

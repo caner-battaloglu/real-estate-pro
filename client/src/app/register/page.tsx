@@ -32,7 +32,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-
+  
   const { register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,14 +57,8 @@ export default function RegisterPage() {
         formData.firstName,
         formData.lastName
       )
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-            ? error
-            : "Registration failed"
-      alert(message)
+    } catch (error: any) {
+      alert(error.message || "Registration failed")
     } finally {
       setIsLoading(false)
     }

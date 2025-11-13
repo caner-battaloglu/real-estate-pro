@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {asyncHandler} from "../middleware/asyncHandler";
 import { IProperty, Property } from "../models/Property";
-import { notifyPriceChange } from "../services/NotificationService";
+import { notifyPriceChange } from "../services/notificationService";
 
 /**
  * Create a property (agent/admin)
