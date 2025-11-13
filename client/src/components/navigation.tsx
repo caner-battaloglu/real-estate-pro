@@ -9,37 +9,43 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-
-const navigation = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Properties", href: "/properties", icon: Building2 },
-  { name: "Agents", href: "/agents", icon: Users },
-]
+import { useTranslations } from "@/lib/i18n"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const isAuthenticated = !!user
+  const t = useTranslations()
+
+  const navItems = React.useMemo(
+    () => [
+      { label: t("navigation.home", "Home"), href: "/home", icon: Home },
+      { label: t("navigation.properties", "Properties"), href: "/properties", icon: Building2 },
+      { label: t("navigation.agents", "Agents"), href: "/agents", icon: Users },
+    ],
+    [t]
+  )
+  const brandName = t("navigation.brand", "RealEstate Pro")
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/home" className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Building2 className="h-5 w-5" />
           </div>
-          <span className="text-xl font-bold">RealEstate Pro</span>
+          <span className="text-xl font-bold">{brandName}</span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          {navigation.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
-                key={item.name}
+                key={item.href}
                 href={item.href}
                 className={cn(
                   "flex items-center space-x-1 text-sm font-medium transition-colors hover:text-primary",
@@ -47,7 +53,7 @@ export function Navigation() {
                 )}
               >
                 <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
+                <span>{item.label}</span>
               </Link>
             )
           })}
@@ -69,16 +75,16 @@ export function Navigation() {
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={logout}>
-                Logout
+                {t("navigation.signOut", "Sign Out")}
               </Button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">{t("navigation.login", "Sign In")}</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/register">Get Started</Link>
+                <Link href="/register">{t("navigation.getStarted", "Get Started")}</Link>
               </Button>
             </div>
           )}
@@ -104,11 +110,11 @@ export function Navigation() {
         <div className="md:hidden border-t bg-background">
           <div className="container py-4">
             <nav className="flex flex-col space-y-4">
-              {navigation.map((item) => {
+              {navItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <Link
-                    key={item.name}
+                    key={item.href}
                     href={item.href}
                     className={cn(
                       "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary",
@@ -117,7 +123,7 @@ export function Navigation() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="h-4 w-4" />
-                    <span>{item.name}</span>
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}
@@ -137,7 +143,7 @@ export function Navigation() {
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={logout} className="w-full">
-                      Logout
+                      {t("navigation.signOut", "Sign Out")}
                     </Button>
                   </div>
                 ) : (
@@ -145,11 +151,11 @@ export function Navigation() {
                     <Button variant="ghost" size="sm" asChild className="w-full justify-start">
                       <Link href="/login">
                         <LogIn className="h-4 w-4 mr-2" />
-                        Sign In
+                        {t("navigation.login", "Sign In")}
                       </Link>
                     </Button>
                     <Button size="sm" asChild className="w-full">
-                      <Link href="/register">Get Started</Link>
+                      <Link href="/register">{t("navigation.getStarted", "Get Started")}</Link>
                     </Button>
                   </div>
                 )}

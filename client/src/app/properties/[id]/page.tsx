@@ -35,9 +35,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, formatArea } from "@/lib/utils"
 import { propertiesApi, handleApiError } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslations } from "@/lib/i18n"
+import { useCountry } from "@/lib/country-context"
+import type { Property } from "@/types"
 
 // Extended property data with more details
 const extendedProperties: Property[] = [
@@ -45,16 +48,16 @@ const extendedProperties: Property[] = [
     id: "1",
     title: "Modern Downtown Apartment",
     description: "Beautiful modern apartment in the heart of downtown with stunning city views. This luxury apartment features floor-to-ceiling windows, premium finishes, and access to world-class amenities. Perfect for young professionals and urban dwellers seeking convenience and style.",
-    price: 450000,
+    price: 545000,
     type: "apartment",
     bedrooms: 2,
     bathrooms: 2,
-    area: 1200,
+    area: 1180,
     images: [
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/259962/pexels-photo-259962.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1895039/pexels-photo-1895039.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "123 Main Street",
@@ -81,16 +84,16 @@ const extendedProperties: Property[] = [
     id: "2",
     title: "Luxury Family House",
     description: "Spacious family home with large backyard and modern amenities. This stunning property offers the perfect blend of comfort and luxury, featuring an open-concept design, gourmet kitchen, and beautifully landscaped grounds. Ideal for growing families who value space and quality.",
-    price: 750000,
+    price: 895000,
     type: "house",
     bedrooms: 4,
     bathrooms: 3,
-    area: 2500,
+    area: 2780,
     images: [
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/280221/pexels-photo-280221.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1645226/pexels-photo-1645226.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/259962/pexels-photo-259962.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "456 Oak Avenue",
@@ -117,16 +120,15 @@ const extendedProperties: Property[] = [
     id: "3",
     title: "Contemporary Condo",
     description: "Stylish condo with modern finishes and city views. This contemporary residence offers sleek design elements, high-end appliances, and breathtaking panoramic views of the city skyline. Perfect for urban professionals seeking luxury and convenience.",
-    price: 320000,
+    price: 389000,
     type: "condo",
     bedrooms: 1,
     bathrooms: 1,
-    area: 800,
+    area: 910,
     images: [
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/280221/pexels-photo-280221.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1895039/pexels-photo-1895039.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "789 Beach Road",
@@ -153,16 +155,15 @@ const extendedProperties: Property[] = [
     id: "4",
     title: "Charming Townhouse",
     description: "Beautiful townhouse with historic charm and modern updates. This meticulously maintained property combines classic architectural details with contemporary amenities, offering the perfect blend of character and comfort.",
-    price: 580000,
+    price: 612000,
     type: "townhouse",
     bedrooms: 3,
     bathrooms: 2,
-    area: 1800,
+    area: 1825,
     images: [
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/259593/pexels-photo-259593.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/164516/pexels-photo-164516.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "321 Historic Lane",
@@ -189,16 +190,15 @@ const extendedProperties: Property[] = [
     id: "5",
     title: "Luxury Villa",
     description: "Stunning villa with panoramic views and premium amenities. This exceptional property offers unparalleled luxury with its expansive layout, designer finishes, and resort-style amenities. Perfect for those seeking the ultimate in sophisticated living.",
-    price: 1200000,
+    price: 1325000,
     type: "villa",
     bedrooms: 5,
     bathrooms: 4,
     area: 4000,
     images: [
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/1454806/pexels-photo-1454806.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1645226/pexels-photo-1645226.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "555 Villa Drive",
@@ -225,16 +225,15 @@ const extendedProperties: Property[] = [
     id: "6",
     title: "Commercial Office Space",
     description: "Prime commercial office space in business district. This modern office space offers flexible layouts, state-of-the-art technology infrastructure, and premium amenities. Perfect for businesses looking to establish a professional presence in the heart of the city.",
-    price: 850000,
+    price: 1125000,
     type: "commercial",
     bedrooms: 0,
     bathrooms: 2,
-    area: 3000,
+    area: 3250,
     images: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop"
+      "https://images.pexels.com/photos/534151/pexels-photo-534151.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/1643385/pexels-photo-1643385.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "999 Business Blvd",
@@ -260,6 +259,7 @@ const extendedProperties: Property[] = [
 ]
 
 export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
+  const { country } = useCountry()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [property, setProperty] = useState<Property | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -275,6 +275,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
   
   const { user } = useAuth()
   const isAuthenticated = !!user
+  const t = useTranslations()
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -295,18 +296,30 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
     fetchProperty()
   }, [params.id])
 
+useEffect(() => {
+  setCurrentImageIndex(0)
+}, [params.id])
+
   const nextImage = () => {
     if (property) {
+      const images = Array.isArray(property.images) && property.images.length > 0
+        ? property.images
+        : []
+      if (images.length === 0) return
       setCurrentImageIndex((prev) => 
-        prev === property.images.length - 1 ? 0 : prev + 1
+        prev === images.length - 1 ? 0 : prev + 1
       )
     }
   }
 
   const prevImage = () => {
     if (property) {
+      const images = Array.isArray(property.images) && property.images.length > 0
+        ? property.images
+        : []
+      if (images.length === 0) return
       setCurrentImageIndex((prev) => 
-        prev === 0 ? property.images.length - 1 : prev - 1
+        prev === 0 ? images.length - 1 : prev - 1
       )
     }
   }
@@ -351,7 +364,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
     return slots
   }
 
-  if (isLoading) {
+if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -365,9 +378,9 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
         </div>
       </div>
     )
-  }
+}
 
-  if (!property) {
+if (!property) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -378,7 +391,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             <Button asChild>
               <Link href="/properties">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Properties
+                {t("property.back", "Back to Properties")}
               </Link>
             </Button>
           </div>
@@ -386,6 +399,29 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
       </div>
     )
   }
+
+  const propertyImages =
+    Array.isArray(property.images) && property.images.length > 0
+      ? property.images
+      : ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1200"]
+
+  const safeImageIndex = Math.min(currentImageIndex, propertyImages.length - 1)
+  const activeImage = propertyImages[safeImageIndex]
+
+  const agentFirstName = property.agent?.firstName ?? ""
+  const agentLastName = property.agent?.lastName ?? ""
+  const agentFullName = `${agentFirstName} ${agentLastName}`.trim() || "Real Estate Agent"
+  const agentEmail = property.agent?.email ?? ""
+  const agentPhone =
+    ((property.agent as (Property["agent"] & { phone?: string }) | undefined)?.phone) ?? ""
+  const agentAvatar =
+    property.agent?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(agentFullName || "Agent")}&background=2563eb&color=fff`
+
+  const propertyId =
+    (property as unknown as { id?: string }).id ||
+    (property as unknown as { _id?: string })._id ||
+    "N/A"
 
   return (
     <div className="min-h-screen bg-background">
@@ -401,7 +437,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
           <Button variant="ghost" asChild>
             <Link href="/properties">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Properties
+              {t("property.back", "Back to Properties")}
             </Link>
           </Button>
         </motion.div>
@@ -417,14 +453,14 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             >
               <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden">
                 <Image
-                  src={property.images[currentImageIndex]}
+                  src={activeImage}
                   alt={property.title}
                   fill
                   className="object-cover"
                 />
                 
                 {/* Image Navigation */}
-                {property.images.length > 1 && (
+                {propertyImages.length > 1 && (
                   <>
                     <Button
                       variant="secondary"
@@ -447,7 +483,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
 
                 {/* Image Counter */}
                 <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {property.images.length}
+                  {safeImageIndex + 1} / {propertyImages.length}
                 </div>
 
                 {/* Action Buttons */}
@@ -462,14 +498,14 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
               </div>
 
               {/* Thumbnail Gallery */}
-              {property.images.length > 1 && (
+              {propertyImages.length > 1 && (
                 <div className="flex space-x-2 mt-4 overflow-x-auto">
-                  {property.images.map((image, index) => (
+                  {propertyImages.map((image: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`relative h-20 w-32 rounded-lg overflow-hidden flex-shrink-0 ${
-                        index === currentImageIndex ? 'ring-2 ring-primary' : ''
+                        index === safeImageIndex ? 'ring-2 ring-primary' : ''
                       }`}
                     >
                       <Image
@@ -500,11 +536,11 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                         {property.location}
                       </div>
                       <div className="text-3xl font-bold text-primary">
-                        {formatPrice(property.price)}
+                        {formatPrice(property.price, country)}
                       </div>
                     </div>
                     <Badge variant="secondary" className="capitalize">
-                      {property.type}
+                      {t(`property.type.${property.type.toLowerCase()}`, property.type)}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -514,28 +550,28 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
                       <Bed className="h-6 w-6 mx-auto mb-2 text-primary" />
                       <div className="text-lg font-semibold">{property.bedrooms}</div>
-                      <div className="text-sm text-muted-foreground">Bedrooms</div>
+                      <div className="text-sm text-muted-foreground">{t("property.bedrooms", "Bedrooms")}</div>
                     </div>
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
                       <Bath className="h-6 w-6 mx-auto mb-2 text-primary" />
                       <div className="text-lg font-semibold">{property.bathrooms}</div>
-                      <div className="text-sm text-muted-foreground">Bathrooms</div>
+                      <div className="text-sm text-muted-foreground">{t("property.bathrooms", "Bathrooms")}</div>
                     </div>
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
                       <Square className="h-6 w-6 mx-auto mb-2 text-primary" />
-                      <div className="text-lg font-semibold">{property.area.toLocaleString()}</div>
-                      <div className="text-sm text-muted-foreground">Sq Ft</div>
+                      <div className="text-lg font-semibold">{formatArea(property.area, country)}</div>
+                      <div className="text-sm text-muted-foreground">{t("property.area", "Area")}</div>
                     </div>
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
                       <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
                       <div className="text-lg font-semibold">2024</div>
-                      <div className="text-sm text-muted-foreground">Built</div>
+                      <div className="text-sm text-muted-foreground">{t("property.built", "Built")}</div>
                     </div>
                   </div>
 
                   {/* Description */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Description</h3>
+                    <h3 className="text-lg font-semibold mb-3">{t("property.description", "Description")}</h3>
                     <p className="text-muted-foreground leading-relaxed">
                       {property.description}
                     </p>
@@ -543,9 +579,9 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
 
                   {/* Features */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Features</h3>
+                    <h3 className="text-lg font-semibold mb-3">{t("property.features", "Features")}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {(property.features || []).map((feature, index) => (
+                      {(property.features || []).map((feature: string, index: number) => (
                         <div key={index} className="flex items-center space-x-2">
                           <div className="h-2 w-2 bg-primary rounded-full"></div>
                           <span className="text-sm">{feature}</span>
@@ -556,9 +592,9 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
 
                   {/* Amenities */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Amenities</h3>
+                    <h3 className="text-lg font-semibold mb-3">{t("property.amenities", "Amenities")}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {(property.amenities || []).map((amenity, index) => (
+                      {(property.amenities || []).map((amenity: string, index: number) => (
                         <div key={index} className="flex items-center space-x-2">
                           <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                           <span className="text-sm">{amenity}</span>
@@ -581,14 +617,14 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Contact Agent</CardTitle>
+                  <CardTitle className="text-lg">{t("property.contactAgent", "Contact Agent")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="h-12 w-12 rounded-full overflow-hidden">
                       <Image
-                        src={property.agent.avatar}
-                        alt={`${property.agent.firstName} ${property.agent.lastName}`}
+                        src={agentAvatar}
+                        alt={agentFullName}
                         width={48}
                         height={48}
                         className="object-cover"
@@ -596,25 +632,39 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                     </div>
                     <div>
                       <div className="font-semibold">
-                        {property.agent.firstName} {property.agent.lastName}
+                        {agentFullName}
                       </div>
                       <div className="text-sm text-muted-foreground">Real Estate Agent</div>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Button className="w-full" asChild>
-                      <Link href={`tel:${property.agent.email}`}>
+                    {agentPhone || agentEmail ? (
+                      <Button className="w-full" asChild>
+                        <Link href={agentPhone ? `tel:${agentPhone}` : `mailto:${agentEmail}`}>
+                          <Phone className="h-4 w-4 mr-2" />
+                          {t("property.callAgent", "Call Agent")}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button className="w-full" disabled>
                         <Phone className="h-4 w-4 mr-2" />
-                        Call Agent
-                      </Link>
-                    </Button>
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link href={`mailto:${property.agent.email}`}>
+                        {t("property.callAgent", "Call Agent")}
+                      </Button>
+                    )}
+                    {agentEmail ? (
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link href={`mailto:${agentEmail}`}>
+                          <Mail className="h-4 w-4 mr-2" />
+                          {t("property.emailAgent", "Email Agent")}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button variant="outline" className="w-full" disabled>
                         <Mail className="h-4 w-4 mr-2" />
-                        Email Agent
-                      </Link>
-                    </Button>
+                        {t("property.emailAgent", "Email Agent")}
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -628,25 +678,25 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Property Information</CardTitle>
+                  <CardTitle className="text-lg">{t("property.info", "Property Information")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Property ID</span>
-                    <span className="font-medium">#{property.id}</span>
+                    <span className="text-muted-foreground">{t("property.id", "Property ID")}</span>
+                    <span className="font-medium">#{propertyId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Type</span>
+                    <span className="text-muted-foreground">{t("property.type", "Type")}</span>
                     <span className="font-medium capitalize">{property.type}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status</span>
+                    <span className="text-muted-foreground">{t("property.status", "Status")}</span>
                     <Badge variant="secondary" className="capitalize">
                       {property.status}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Listed</span>
+                    <span className="text-muted-foreground">{t("property.listed", "Listed")}</span>
                     <span className="font-medium">
                       {new Date(property.createdAt).toLocaleDateString()}
                     </span>
@@ -663,18 +713,23 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Schedule a Tour</CardTitle>
+                  <CardTitle className="text-lg">{t("property.scheduleTour", "Schedule a Tour")}</CardTitle>
                   <CardDescription>
-                    Book a private viewing of this property
+                    {t("property.scheduleTourDescription", "Book a private viewing of this property")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {tourBooked ? (
                     <div className="text-center space-y-2">
                       <CheckCircle className="h-8 w-8 text-green-500 mx-auto" />
-                      <p className="text-sm font-medium text-green-600">Tour Booked!</p>
+                      <p className="text-sm font-medium text-green-600">
+                        {t("property.tourBooked", "Tour Booked!")}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        We'll contact you soon to confirm details.
+                        {t(
+                          "property.tourConfirm",
+                          "We'll contact you soon to confirm details."
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -684,7 +739,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       onClick={handleScheduleTour}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
-                      Schedule Tour
+                      {t("property.scheduleTour", "Schedule a Tour")}
                     </Button>
                   )}
                 </CardContent>
@@ -713,7 +768,9 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">Schedule Property Tour</h2>
+                  <h2 className="text-xl font-semibold">
+                    {t("property.scheduleTourTitle", "Schedule Property Tour")}
+                  </h2>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -731,14 +788,16 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       {property.location}
                     </div>
                     <div className="text-lg font-semibold text-primary mt-1">
-                      {formatPrice(property.price)}
+                      {formatPrice(property.price, country)}
                     </div>
                   </div>
                 )}
 
                 <form onSubmit={handleTourBooking} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Select Date</label>
+                    <label className="text-sm font-medium mb-2 block">
+                      {t("property.selectDate", "Select Date")}
+                    </label>
                     <input
                       type="date"
                       value={tourForm.date}
@@ -750,14 +809,16 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Select Time</label>
+                    <label className="text-sm font-medium mb-2 block">
+                      {t("property.selectTime", "Select Time")}
+                    </label>
                     <select
                       value={tourForm.time}
                       onChange={(e) => setTourForm({ ...tourForm, time: e.target.value })}
                       className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       required
                     >
-                      <option value="">Choose a time</option>
+                      <option value="">{t("property.chooseTime", "Choose a time")}</option>
                       {generateTimeSlots().map((time) => (
                         <option key={time} value={time}>
                           {time}
@@ -767,7 +828,9 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Preferred Contact Method</label>
+                    <label className="text-sm font-medium mb-2 block">
+                      {t("property.contactMethod", "Preferred Contact Method")}
+                    </label>
                     <div className="space-y-2">
                       <label className="flex items-center space-x-2">
                         <input
@@ -778,7 +841,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                           onChange={(e) => setTourForm({ ...tourForm, contactMethod: e.target.value })}
                           className="rounded border-gray-300"
                         />
-                        <span className="text-sm">Phone Call</span>
+                        <span className="text-sm">{t("property.contactMethod.phone", "Phone Call")}</span>
                       </label>
                       <label className="flex items-center space-x-2">
                         <input
@@ -789,13 +852,15 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                           onChange={(e) => setTourForm({ ...tourForm, contactMethod: e.target.value })}
                           className="rounded border-gray-300"
                         />
-                        <span className="text-sm">Email</span>
+                        <span className="text-sm">{t("property.contactMethod.email", "Email")}</span>
                       </label>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Additional Message (Optional)</label>
+                    <label className="text-sm font-medium mb-2 block">
+                      {t("property.additionalMessage", "Additional Message (Optional)")}
+                    </label>
                     <textarea
                       value={tourForm.message}
                       onChange={(e) => setTourForm({ ...tourForm, message: e.target.value })}
@@ -811,7 +876,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       className="flex-1"
                       onClick={() => setShowTourModal(false)}
                     >
-                      Cancel
+                      {t("property.cancel", "Cancel")}
                     </Button>
                     <Button
                       type="submit"
@@ -821,12 +886,12 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       {isBookingTour ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Booking...
+                          {t("property.booking", "Booking...")}
                         </>
                       ) : (
                         <>
                           <Calendar className="h-4 w-4 mr-2" />
-                          Book Tour
+                          {t("property.book", "Book Tour")}
                         </>
                       )}
                     </Button>
@@ -837,9 +902,19 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                   <div className="flex items-start space-x-2">
                     <User className="h-4 w-4 text-blue-600 mt-0.5" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-medium">Tour Confirmation</p>
+                      <p className="font-medium">
+                        {t("property.tourConfirmationTitle", "Tour Confirmation")}
+                      </p>
                       <p className="text-xs mt-1">
-                        {user?.firstName} {user?.lastName}, we'll contact you at your preferred method to confirm the tour details.
+                        {t(
+                          "property.tourConfirmationNote",
+                          "{name}, we'll contact you at your preferred method to confirm the tour details.",
+                          {
+                            name:
+                              `${(user?.firstName ?? "").trim()} ${(user?.lastName ?? "").trim()}`.trim() ||
+                              t("property.tourConfirmationGuest", "Guest"),
+                          }
+                        )}
                       </p>
                     </div>
                   </div>

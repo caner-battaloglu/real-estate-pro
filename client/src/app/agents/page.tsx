@@ -56,11 +56,14 @@ export default function AgentsPage() {
     try {
       const data = await agentsApi.getAll()
       console.log('Loaded agents from backend:', data)
-      
-      // Filter for active agents only
-      const activeAgents = (data.agents || data).filter((agent: Agent) => 
-        agent.isActive
-      )
+
+      const allAgents: Agent[] = Array.isArray((data as any)?.items)
+        ? (data as { items: Agent[] }).items
+        : Array.isArray(data)
+          ? (data as Agent[])
+          : []
+
+      const activeAgents = allAgents.filter((agent) => agent.isActive)
       
       setAgents(activeAgents)
     } catch (error) {

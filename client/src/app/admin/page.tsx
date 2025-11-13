@@ -65,7 +65,7 @@ const recentProperties = [
   {
     id: "1",
     title: "Modern Downtown Apartment",
-    price: 450000,
+    price: 545000,
     status: "pending",
     agent: "Sarah Johnson",
     createdAt: "2024-01-15",
@@ -74,7 +74,7 @@ const recentProperties = [
   {
     id: "2",
     title: "Luxury Family House",
-    price: 750000,
+    price: 895000,
     status: "approved",
     agent: "Michael Chen",
     createdAt: "2024-01-14",
@@ -83,7 +83,7 @@ const recentProperties = [
   {
     id: "3",
     title: "Contemporary Condo",
-    price: 320000,
+    price: 389000,
     status: "rejected",
     agent: "Emily Rodriguez",
     createdAt: "2024-01-13",
@@ -92,7 +92,7 @@ const recentProperties = [
   {
     id: "4",
     title: "Charming Townhouse",
-    price: 580000,
+    price: 612000,
     status: "pending",
     agent: "David Wilson",
     createdAt: "2024-01-12",

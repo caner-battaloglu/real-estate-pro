@@ -6,11 +6,17 @@ import { MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCountry } from "@/lib/country-context";
+import { useTranslations } from "@/lib/i18n";
 import Image from "next/image";
 
 export default function LandingPage() {
   const router = useRouter();
   const { setCountry } = useCountry();
+  const t = useTranslations();
+
+  const brandName = t("navigation.brand", "RealEstate Pro");
+  const titlePrefix = t("landing.title.prefix", "Welcome to");
+  const titleSuffix = t("landing.title.suffix", "");
 
   const handleCountrySelect = (country: "USA" | "Turkey") => {
     setCountry(country);
@@ -27,11 +33,15 @@ export default function LandingPage() {
           className="text-center space-y-8 mb-12"
         >
           <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">
-            Welcome to <span className="text-primary">RealEstate Pro</span>
+            {titlePrefix ? `${titlePrefix} ` : ""}
+            <span className="text-primary">{brandName}</span>
+            {titleSuffix}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose your country to explore properties tailored to your location. 
-            Prices and measurements will be displayed according to your selection.
+            {t(
+              "landing.subtitle",
+              "Choose your country to explore properties tailored to your location. Prices and measurements will be displayed according to your selection."
+            )}
           </p>
         </motion.div>
 
@@ -55,10 +65,15 @@ export default function LandingPage() {
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="flex items-center space-x-2 text-white mb-2">
                     <MapPin className="h-5 w-5" />
-                    <h3 className="text-2xl font-bold">United States</h3>
+                    <h3 className="text-2xl font-bold">
+                      {t("landing.usa.title", "United States")}
+                    </h3>
                   </div>
                   <p className="text-white/90 text-sm">
-                    Browse properties in USD with square feet measurements
+                    {t(
+                      "landing.card.usa",
+                      "Browse properties in USD with square feet measurements"
+                    )}
                   </p>
                 </div>
               </div>
@@ -66,16 +81,24 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Currency:</span>
-                      <span className="font-semibold">USD ($)</span>
+                      <span className="text-muted-foreground">
+                        {t("landing.currency.usd", "Currency:")}
+                      </span>
+                      <span className="font-semibold">
+                        {t("landing.currency.usd.value", "USD ($)")}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Area Unit:</span>
-                      <span className="font-semibold">Square Feet (sq ft)</span>
+                      <span className="text-muted-foreground">
+                        {t("landing.unit.us", "Area Unit:")}
+                      </span>
+                      <span className="font-semibold">
+                        {t("landing.unit.us.value", "Square Feet (sq ft)")}
+                      </span>
                     </div>
                   </div>
                   <Button className="w-full" size="lg" onClick={() => handleCountrySelect("USA")}>
-                    Select USA
+                    {t("landing.select.usa", "Select USA")}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -102,10 +125,15 @@ export default function LandingPage() {
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="flex items-center space-x-2 text-white mb-2">
                     <MapPin className="h-5 w-5" />
-                    <h3 className="text-2xl font-bold">Turkey</h3>
+                    <h3 className="text-2xl font-bold">
+                      {t("landing.turkey.title", "Turkey")}
+                    </h3>
                   </div>
                   <p className="text-white/90 text-sm">
-                    Browse properties in TRY with square meters measurements
+                    {t(
+                      "landing.card.turkey",
+                      "Browse properties in TRY with square meters measurements"
+                    )}
                   </p>
                 </div>
               </div>
@@ -113,16 +141,24 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Currency:</span>
-                      <span className="font-semibold">TRY (₺)</span>
+                      <span className="text-muted-foreground">
+                        {t("landing.currency.try", "Currency:")}
+                      </span>
+                      <span className="font-semibold">
+                        {t("landing.currency.try.value", "TRY (₺)")}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Area Unit:</span>
-                      <span className="font-semibold">Square Meters (m²)</span>
+                      <span className="text-muted-foreground">
+                        {t("landing.unit.tr", "Area Unit:")}
+                      </span>
+                      <span className="font-semibold">
+                        {t("landing.unit.tr.value", "Square Meters (m²)")}
+                      </span>
                     </div>
                   </div>
                   <Button className="w-full" size="lg" onClick={() => handleCountrySelect("Turkey")}>
-                    Select Turkey
+                    {t("landing.select.turkey", "Select Turkey")}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -134,3 +170,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

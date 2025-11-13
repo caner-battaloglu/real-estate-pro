@@ -69,46 +69,46 @@ const myProperties = [
   {
     id: "1",
     title: "Modern Downtown Apartment",
-    price: 450000,
+    price: 545000,
     status: "approved",
     views: 234,
     inquiries: 12,
     createdAt: "2024-01-15",
     location: "New York, NY",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: "2",
     title: "Luxury Family House",
-    price: 750000,
+    price: 895000,
     status: "pending",
     views: 189,
     inquiries: 8,
     createdAt: "2024-01-14",
     location: "Los Angeles, CA",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: "3",
     title: "Contemporary Condo",
-    price: 320000,
+    price: 389000,
     status: "approved",
     views: 156,
     inquiries: 5,
     createdAt: "2024-01-13",
     location: "Miami, FL",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?auto=format&fit=crop&w=1200&q=80"
   },
   {
     id: "4",
     title: "Charming Townhouse",
-    price: 580000,
+    price: 612000,
     status: "draft",
     views: 0,
     inquiries: 0,
     createdAt: "2024-01-12",
     location: "Boston, MA",
-    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=300&h=200&fit=crop"
+    image: "https://images.unsplash.com/photo-1600585154084-4e2a43a5304c?auto=format&fit=crop&w=1200&q=80"
   }
 ]
 

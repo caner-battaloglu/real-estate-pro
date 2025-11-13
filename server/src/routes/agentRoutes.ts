@@ -8,19 +8,34 @@ import {
   updateProperty,
   deleteProperty,
 } from "../controllers/propertyContoller"; // NOTE: your file name has 'Contoller'
+import { listAgents, getAgentById } from "../controllers/agentController";
 
 const router = Router();
 
 // Health check to prove this router is mounted:
 router.get("/health", (_req, res) => res.json({ ok: true, scope: "agent" }));
 
-// All agent endpoints require auth + role + first-login cleared
-router.use(authenticateToken, requireRole("agent", "admin"), enforcePasswordChange);
+// Public catalogue of agents
+router.get("/", listAgents);
 
-router.get("/properties", listMine);
-router.post("/properties", createProperty);
-router.post("/properties/:id/submit", submitForApproval);
-router.patch("/properties/:id", updateProperty);
-router.delete("/properties/:id", deleteProperty);
+// Agent-managed property endpoints (protected)
+const propertiesRouter = Router();
+
+propertiesRouter.get("/", listMine);
+propertiesRouter.post("/", createProperty);
+propertiesRouter.post("/:id/submit", submitForApproval);
+propertiesRouter.patch("/:id", updateProperty);
+propertiesRouter.delete("/:id", deleteProperty);
+
+router.use(
+  "/properties",
+  authenticateToken,
+  requireRole("agent", "admin"),
+  enforcePasswordChange,
+  propertiesRouter
+);
+
+// Public agent detail (registered after property routes to avoid shadowing)
+router.get("/:id", getAgentById);
 
 export default router;

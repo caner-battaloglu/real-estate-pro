@@ -77,15 +77,68 @@ const mockUsers = [
 
 const mockProperties = [
   {
+    title: 'City Center Studio Apartment',
+    description:
+      'Compact, well-planned studio in the city center, ideal for young professionals or students. Open-plan living with a small kitchenette and modern bathroom.',
+    price: 145000,
+    type: 'apartment',
+    bedrooms: 0, // studio
+    bathrooms: 1,
+    area: 420,
+    images: [
+      'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1512914890250-353c97c9e7e2?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '12 Market Lane',
+      city: 'New York',
+      state: 'NY',
+      postalCode: '10002',
+      country: 'USA'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-01-08T09:10:00Z'),
+    updatedAt: new Date('2024-01-08T09:10:00Z')
+  },
+  {
+    title: 'Bright 1-Bedroom Apartment',
+    description:
+      'South-facing 1-bedroom apartment with a separate bedroom, open living area, and balcony overlooking a quiet courtyard.',
+    price: 225000,
+    type: 'apartment',
+    bedrooms: 1,
+    bathrooms: 1,
+    area: 650,
+    images: [
+      'https://images.unsplash.com/photo-1505691723518-36a5ac3be353?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1519710884008-592965723cbc?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '45 Green Street',
+      city: 'Boston',
+      state: 'MA',
+      postalCode: '02116',
+      country: 'USA'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-01-05T11:45:00Z'),
+    updatedAt: new Date('2024-01-12T15:30:00Z')
+  },
+  {
     title: 'Modern Downtown Apartment',
-    description: 'Beautiful modern apartment in the heart of downtown with stunning city views.',
-    price: 450000,
+    description:
+      'Updated 2-bedroom apartment in the heart of downtown with open-plan kitchen, in-unit laundry, and skyline views.',
+    price: 365000,
     type: 'apartment',
     bedrooms: 2,
     bathrooms: 2,
-    area: 1200,
+    area: 980,
     images: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop'
+      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&h=600&fit=crop'
     ],
     address: {
       line1: '123 Main Street',
@@ -99,15 +152,43 @@ const mockProperties = [
     updatedAt: new Date('2024-01-15T10:30:00Z')
   },
   {
-    title: 'Luxury Family House',
-    description: 'Spacious family home with large backyard and modern amenities.',
-    price: 750000,
+    title: 'Cozy Suburban Home',
+    description:
+      'Single-story family home with three bedrooms, updated kitchen, and a fenced backyard perfect for kids and pets.',
+    price: 315000,
+    type: 'house',
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 1650,
+    images: [
+      'https://images.unsplash.com/photo-1570129476766-47cbb58fc0c6?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1599423300746-b62533397364?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '321 Elm Street',
+      city: 'Austin',
+      state: 'TX',
+      postalCode: '78701',
+      country: 'USA'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-01-20T08:15:00Z'),
+    updatedAt: new Date('2024-01-20T08:15:00Z')
+  },
+  {
+    title: 'Family House with Garden',
+    description:
+      'Detached 4-bedroom house in a quiet residential street with private garden, garage, and spacious living room.',
+    price: 465000,
     type: 'house',
     bedrooms: 4,
     bathrooms: 3,
-    area: 2500,
+    area: 2300,
     images: [
-      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop'
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600607687920-4e2a534c36c8?w=900&h=600&fit=crop'
     ],
     address: {
       line1: '456 Oak Avenue',
@@ -122,15 +203,18 @@ const mockProperties = [
     updatedAt: new Date('2024-01-16T14:20:00Z')
   },
   {
-    title: 'Contemporary Condo',
-    description: 'Stylish condo with modern finishes and city views.',
-    price: 320000,
+    title: 'Contemporary Beachside Condo',
+    description:
+      '1-bedroom condo a short walk from the beach, featuring a bright living area, balcony, and shared pool access.',
+    price: 289000,
     type: 'condo',
     bedrooms: 1,
     bathrooms: 1,
-    area: 800,
+    area: 780,
     images: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop'
+      'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=900&h=600&fit=crop'
     ],
     address: {
       line1: '789 Beach Road',
@@ -139,43 +223,23 @@ const mockProperties = [
       postalCode: '33101',
       country: 'USA'
     },
-    status: 'rejected',
-    rejectionReason: 'Incomplete property information and missing required documents.',
+    status: 'approved',
     createdAt: new Date('2024-01-05T16:45:00Z'),
     updatedAt: new Date('2024-01-12T11:30:00Z')
   },
   {
-    title: 'Cozy Suburban Home',
-    description: 'Perfect starter home in a quiet neighborhood with excellent schools nearby.',
-    price: 280000,
-    type: 'house',
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 1500,
-    images: [
-      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&h=300&fit=crop'
-    ],
-    address: {
-      line1: '321 Elm Street',
-      city: 'Austin',
-      state: 'TX',
-      postalCode: '78701',
-      country: 'USA'
-    },
-    status: 'approved',
-    createdAt: new Date('2024-01-20T08:15:00Z'),
-    updatedAt: new Date('2024-01-20T08:15:00Z')
-  },
-  {
-    title: 'Penthouse with City Views',
-    description: 'Luxurious penthouse with panoramic city views and premium amenities.',
-    price: 1200000,
+    title: 'Top-Floor Penthouse with Terrace',
+    description:
+      'Spacious 3-bedroom penthouse with private rooftop terrace, floor-to-ceiling windows, and underground parking.',
+    price: 725000,
     type: 'apartment',
     bedrooms: 3,
     bathrooms: 3,
-    area: 2000,
+    area: 1900,
     images: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop'
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1512914890250-353c97c9e7e2?w=900&h=600&fit=crop'
     ],
     address: {
       line1: '1000 Sky Tower',
@@ -184,11 +248,37 @@ const mockProperties = [
       postalCode: '60601',
       country: 'USA'
     },
-    status: 'draft',
+    status: 'pending',
     createdAt: new Date('2024-01-25T12:00:00Z'),
     updatedAt: new Date('2024-01-25T12:00:00Z')
+  },
+  {
+    title: 'Downtown Office Floor',
+    description:
+      'Class B office space on a mid-level floor with open-plan work area, 2 meeting rooms, and kitchenette.',
+    price: 495000,
+    type: 'commercial',
+    bedrooms: 0,
+    bathrooms: 2,
+    area: 3100,
+    images: [
+      'https://images.unsplash.com/photo-1529429617124-aee711a2b56c?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '200 Market Street',
+      city: 'Chicago',
+      state: 'IL',
+      postalCode: '60602',
+      country: 'USA'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-01-18T11:00:00Z'),
+    updatedAt: new Date('2024-01-22T09:45:00Z')
   }
 ];
+
 
 async function seedDatabase() {
   try {

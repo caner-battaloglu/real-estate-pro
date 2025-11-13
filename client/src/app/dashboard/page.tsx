@@ -40,21 +40,23 @@ import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
 import { formatPrice } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
-import { propertiesApi, toursApi, handleApiError } from "@/lib/api"
+import { propertiesApi, handleApiError } from "@/lib/api"
+import type { Property } from "@/types"
 
 // Mock data for user dashboard
-const savedProperties: Property[] = [
+const defaultSavedProperties: Property[] = [
   {
     id: "1",
     title: "Modern Downtown Apartment",
     description: "Beautiful modern apartment in the heart of downtown with stunning city views.",
-    price: 450000,
+    price: 545000,
     type: "apartment",
     bedrooms: 2,
     bathrooms: 2,
-    area: 1200,
+    area: 1180,
     images: [
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop"
+      "https://images.pexels.com/photos/259962/pexels-photo-259962.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "123 Main Street",
@@ -81,13 +83,14 @@ const savedProperties: Property[] = [
     id: "2",
     title: "Luxury Family House",
     description: "Spacious family home with large backyard and modern amenities.",
-    price: 750000,
+    price: 895000,
     type: "house",
     bedrooms: 4,
     bathrooms: 3,
     area: 2500,
     images: [
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=300&fit=crop"
+      "https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=1200"
     ],
     address: {
       line1: "456 Oak Avenue",
@@ -163,15 +166,23 @@ export default function UserDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const { user } = useAuth()
   const isAuthenticated = !!user
+  const userAvatar = (user as (typeof user & { avatar?: string }) | null)?.avatar
+  const [savedPropertiesData, setSavedProperties] = useState<Property[]>(defaultSavedProperties)
 
   useEffect(() => {
     const loadUserData = async () => {
       try {
         // Load saved properties (favorites) - using approved properties as mock saved
         const propertiesData = await propertiesApi.getAll();
-        const approvedProperties = (propertiesData.properties || propertiesData).filter((property: any) => 
-          property.status === 'approved'
-        );
+        const items = Array.isArray(propertiesData?.items)
+          ? propertiesData.items
+          : Array.isArray((propertiesData as any)?.properties)
+            ? (propertiesData as any).properties
+            : Array.isArray(propertiesData)
+              ? (propertiesData as any)
+              : []
+
+        const approvedProperties = items.filter((property: any) => property.status === 'approved');
         // For demo purposes, show first 3 properties as "saved"
         setSavedProperties(approvedProperties.slice(0, 3));
       } catch (error) {
@@ -300,7 +311,7 @@ export default function UserDashboard() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Saved Properties</p>
-                        <p className="text-2xl font-bold">{savedProperties.length}</p>
+                        <p className="text-2xl font-bold">{savedPropertiesData.length}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -390,7 +401,7 @@ export default function UserDashboard() {
                     <CardDescription>Properties you've saved for later</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {savedProperties.slice(0, 3).map((property) => (
+                    {savedPropertiesData.slice(0, 3).map((property) => (
                       <div key={property.id} className="flex items-center space-x-4 p-3 border rounded-lg">
                         <div className="relative h-12 w-16 rounded overflow-hidden">
                           <Image
@@ -433,7 +444,7 @@ export default function UserDashboard() {
               </div>
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {savedProperties.map((property, index) => (
+                {savedPropertiesData.map((property, index) => (
                   <motion.div
                     key={property.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -686,7 +697,7 @@ export default function UserDashboard() {
                     <div className="flex items-center space-x-4">
                       <div className="h-16 w-16 rounded-full overflow-hidden">
                         <Image
-                          src={user?.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"}
+                          src={userAvatar ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"}
                           alt={`${user?.firstName} ${user?.lastName}`}
                           width={64}
                           height={64}
@@ -711,7 +722,7 @@ export default function UserDashboard() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Properties saved</span>
-                        <span className="font-medium">{savedProperties.length}</span>
+                        <span className="font-medium">{savedPropertiesData.length}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Tours booked</span>
