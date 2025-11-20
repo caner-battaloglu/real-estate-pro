@@ -88,6 +88,6 @@ export const agentsApi = {
     return apiFetch<{ items: Agent[] }>("/api/agents");
   },
   async getById(id: string) {
-    return apiFetch<{ agent: Agent }>(`/api/agents/${id}`);
+    return apiFetch<Agent>(`/api/agents/${id}`);
   },
 };

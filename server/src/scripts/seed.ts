@@ -593,6 +593,198 @@ const propertySeedData: SeedProperty[] = [
     },
     location: "Portland, OR, USA",
     status: "pending"
+  },
+  // UK Properties
+  {
+    title: "Riverside Flat near Tower Bridge",
+    description:
+      "Elegant two-bedroom flat with uninterrupted Thames views, bespoke kitchen finishes, and concierge services.",
+    price: 550000,
+    type: "Apartment",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 95,
+    images: getImagesByType("Apartment"),
+    address: {
+      line1: "25 Queen's Walk",
+      city: "London",
+      state: "England",
+      country: "UK",
+      postalCode: "SE1 2JX"
+    },
+    location: "London, UK",
+    status: "approved"
+  },
+  {
+    title: "Georgian Townhouse in Notting Hill",
+    description:
+      "Four-story Georgian townhouse featuring original fireplaces, private garden, and a self-contained studio.",
+    price: 1850000,
+    type: "House",
+    bedrooms: 5,
+    bathrooms: 4,
+    area: 310,
+    images: getImagesByType("House"),
+    address: {
+      line1: "14 Westbourne Grove",
+      city: "London",
+      state: "England",
+      country: "UK",
+      postalCode: "W2 5RH"
+    },
+    location: "London, UK",
+    status: "approved"
+  },
+  {
+    title: "Canalside Loft in Birmingham",
+    description:
+      "Converted warehouse loft with double-height ceilings, exposed brickwork, and balcony overlooking the canal basin.",
+    price: 375000,
+    type: "Apartment",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 120,
+    images: getImagesByType("Apartment"),
+    address: {
+      line1: "8 Wharfside Close",
+      city: "Birmingham",
+      state: "West Midlands",
+      country: "UK",
+      postalCode: "B1 1RD"
+    },
+    location: "Birmingham, UK",
+    status: "pending"
+  },
+  {
+    title: "Penthouse with Views of the Shard",
+    description:
+      "Boutique penthouse perched above Borough Market with wraparound terrace, private lift access, and secure parking.",
+    price: 2200000,
+    type: "Apartment",
+    bedrooms: 3,
+    bathrooms: 3,
+    area: 185,
+    images: getImagesByType("Apartment"),
+    address: {
+      line1: "1 Borough High Street",
+      city: "London",
+      state: "England",
+      country: "UK",
+      postalCode: "SE1 9RG"
+    },
+    location: "London, UK",
+    status: "approved"
+  }
+];
+
+const agentSeedData: Array<Partial<IUser> & { email: string; password: string }> = [
+  {
+    email: "aylin.demir@realestate.com",
+    password: "Agent123!",
+    firstName: "Aylin",
+    lastName: "Demir",
+    phone: "+90 532 555 1212",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Born and raised in Istanbul, Aylin curates waterfront residences along the Bosphorus and guides international families through the Turkish buying process.",
+    specialties: ["Bosphorus View Homes", "Luxury Apartments", "International Buyers"],
+    experience: 11,
+    rating: 4.9,
+    propertiesSold: 248,
+    avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "Turkey"
+  },
+  {
+    email: "kerem.yildiz@realestate.com",
+    password: "Agent123!",
+    firstName: "Kerem",
+    lastName: "Yildiz",
+    phone: "+90 533 410 8899",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Kerem specializes in new developments across Ankara and Izmir, blending data-driven insights with a concierge-level client experience.",
+    specialties: ["New Developments", "Family Homes", "Investment Advisory"],
+    experience: 8,
+    rating: 4.8,
+    propertiesSold: 192,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "Turkey"
+  },
+  {
+    email: "olivia.bennett@realestate.com",
+    password: "Agent123!",
+    firstName: "Olivia",
+    lastName: "Bennett",
+    phone: "+1 212 555 0199",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Olivia leads our New York City team, representing penthouses, pied-à-terres, and turnkey condos spanning Manhattan and Brooklyn.",
+    specialties: ["NYC Penthouses", "Luxury Condos", "Relocation"],
+    experience: 12,
+    rating: 4.95,
+    propertiesSold: 310,
+    avatar: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "USA"
+  },
+  {
+    email: "marcus.reed@realestate.com",
+    password: "Agent123!",
+    firstName: "Marcus",
+    lastName: "Reed",
+    phone: "+1 737 555 4411",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Austin-based Marcus pairs tech startup savvy with neighborhood expertise to help clients acquire modern homes and investment rentals.",
+    specialties: ["Modern Homes", "Investment Rentals", "Tech Relocations"],
+    experience: 9,
+    rating: 4.87,
+    propertiesSold: 205,
+    avatar: "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "USA"
+  },
+  {
+    email: "amelia.clarke@realestate.com",
+    password: "Agent123!",
+    firstName: "Amelia",
+    lastName: "Clarke",
+    phone: "+44 20 7946 0822",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Amelia curates prime properties across Kensington, Chelsea, and the City, with discreet representation for UHNW buyers.",
+    specialties: ["Prime Central London", "Townhouses", "Private Clients"],
+    experience: 14,
+    rating: 5,
+    propertiesSold: 342,
+    avatar: "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "UK"
+  },
+  {
+    email: "jasper.collins@realestate.com",
+    password: "Agent123!",
+    firstName: "Jasper",
+    lastName: "Collins",
+    phone: "+44 161 555 7744",
+    role: "agent",
+    isActive: true,
+    createdByAdmin: true,
+    mustChangePassword: false,
+    bio: "Based in Manchester, Jasper focuses on design-forward lofts, adaptive reuse projects, and high-yield rental portfolios across the North of England.",
+    specialties: ["Lofts", "Redevelopment Projects", "Rental Portfolios"],
+    experience: 7,
+    rating: 4.85,
+    propertiesSold: 178,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+    marketCountry: "UK"
   }
 ];
 
@@ -617,21 +809,40 @@ async function seed() {
     });
     console.log("Created admin user");
 
-    const agents = [];
-    for (let i = 1; i <= 5; i++) {
-      const agent = await User.create({
-        email: `agent${i}@realestate.com`,
-        password: "Agent123!",
-        firstName: `Agent${i}`,
-        lastName: `Smith`,
-        role: "agent",
-        isActive: true,
-        createdByAdmin: true,
-        mustChangePassword: false
-      });
+    const agents: IUser[] = [];
+    for (const agentData of agentSeedData) {
+      const agent = await User.create(agentData);
       agents.push(agent);
     }
     console.log(`Created ${agents.length} agents`);
+
+    const agentsByCountry = agents.reduce<Record<string, IUser[]>>((acc, agent) => {
+      const key = agent.marketCountry || "USA";
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(agent);
+      return acc;
+    }, {});
+
+    const agentRotation: Record<string, number> = {};
+    const normalizeCountry = (value?: string) => {
+      const normalized = (value || "").toLowerCase();
+      if (normalized.includes("turk")) return "Turkey";
+      if (normalized.includes("kingdom") || normalized === "uk" || normalized === "united kingdom") return "UK";
+      return "USA";
+    };
+
+    const getAgentForCountry = (country?: string) => {
+      const key = normalizeCountry(country);
+      const pool = agentsByCountry[key] && agentsByCountry[key].length ? agentsByCountry[key] : agents;
+      if (!agentRotation[key]) {
+        agentRotation[key] = 0;
+      }
+      const index = agentRotation[key] % pool.length;
+      agentRotation[key] += 1;
+      return pool[index];
+    };
 
     const users = [];
     for (let i = 1; i <= 10; i++) {
@@ -650,7 +861,7 @@ async function seed() {
     const properties: IProperty[] = [];
     for (let i = 0; i < propertySeedData.length; i++) {
       const base = propertySeedData[i];
-      const agent = agents[i % agents.length];
+      const agent = getAgentForCountry(base.address?.country);
       const isApproved = base.status === "approved";
 
       const property = await Property.create({

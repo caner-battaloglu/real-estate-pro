@@ -25,8 +25,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
 import { agentsApi, handleApiError } from "@/lib/api"
+import { useCountry } from "@/lib/country-context"
 
-interface Agent {
+interface AgentListItem {
   _id: string;
   firstName: string;
   lastName: string;
@@ -39,14 +40,16 @@ interface Agent {
   rating?: number;
   propertiesSold?: number;
   isActive: boolean;
+  marketCountry?: "USA" | "UK" | "Turkey";
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<Agent[]>([])
+  const [agents, setAgents] = useState<AgentListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  const { country } = useCountry()
 
   useEffect(() => {
     loadAgents()
@@ -57,10 +60,11 @@ export default function AgentsPage() {
       const data = await agentsApi.getAll()
       console.log('Loaded agents from backend:', data)
 
-      const allAgents: Agent[] = Array.isArray((data as any)?.items)
-        ? (data as { items: Agent[] }).items
-        : Array.isArray(data)
-          ? (data as Agent[])
+      const payload = data as unknown
+      const allAgents: AgentListItem[] = Array.isArray((payload as any)?.items)
+        ? ((payload as any).items as AgentListItem[])
+        : Array.isArray(payload)
+          ? (payload as AgentListItem[])
           : []
 
       const activeAgents = allAgents.filter((agent) => agent.isActive)
@@ -76,6 +80,9 @@ export default function AgentsPage() {
   }
 
   const filteredAgents = agents.filter((agent) => {
+    const matchesCountry = country ? agent.marketCountry === country : true
+    if (!matchesCountry) return false
+
     if (!searchQuery) return true
     const query = searchQuery.toLowerCase()
     return (
@@ -161,10 +168,19 @@ export default function AgentsPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-semibold text-lg">
-                              {agent.firstName} {agent.lastName}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">{agent.email}</p>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-lg">
+                                  {agent.firstName} {agent.lastName}
+                                </h3>
+                                {agent.marketCountry && (
+                                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
+                                    {agent.marketCountry}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">{agent.email}</p>
+                            </div>
                             {agent.phone && (
                               <p className="text-sm text-muted-foreground">{agent.phone}</p>
                             )}
@@ -226,7 +242,11 @@ export default function AgentsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No agents found matching your criteria.</p>
+            <p className="text-muted-foreground">
+              {country
+                ? "No agents are available for your selected country yet."
+                : "No agents found matching your criteria."}
+            </p>
           </div>
         )}
       </div>

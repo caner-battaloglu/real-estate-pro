@@ -25,7 +25,7 @@ export const listAgents = asyncHandler(async (req: Request, res: Response) => {
   if (process.env.NODE_ENV !== "production") {
     console.log("listAgents called public endpoint");
   }
-  const { q, active, page = "1", limit = "100" } = req.query as Record<string, string>;
+  const { q, active, page = "1", limit = "100", country } = req.query as Record<string, string>;
   const filter: any = { role: "agent" };
   
   if (typeof active === "string") {
@@ -33,6 +33,10 @@ export const listAgents = asyncHandler(async (req: Request, res: Response) => {
   } else {
     // Default to only active agents if not specified
     filter.isActive = true;
+  }
+
+  if (country && country !== "all") {
+    filter.marketCountry = country;
   }
   
   if (q && q.trim()) {

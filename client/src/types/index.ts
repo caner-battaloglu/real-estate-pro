@@ -44,6 +44,7 @@ export interface Agent {
   rating: number
   propertiesSold: number
   isActive: boolean
+  marketCountry?: "USA" | "UK" | "Turkey"
   socialMedia?: {
     linkedin?: string
     twitter?: string

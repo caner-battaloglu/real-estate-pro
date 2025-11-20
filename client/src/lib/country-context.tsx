@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type Country = "USA" | "Turkey";
+export type Country = "USA" | "UK" | "Turkey";
 export type Language = "en" | "tr";
 
 interface CountryContextType {
@@ -34,7 +34,7 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
     // Load country from localStorage on mount
     const savedCountry = localStorage.getItem(COUNTRY_STORAGE_KEY) as Country | null;
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null;
-    if (savedCountry === "USA" || savedCountry === "Turkey") {
+    if (savedCountry === "USA" || savedCountry === "UK" || savedCountry === "Turkey") {
       setCountryState(savedCountry);
       if (savedLanguage === "en" || savedLanguage === "tr") {
         setLanguageState(savedLanguage);

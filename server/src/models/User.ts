@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 export type AppRole = "user" | "agent" | "admin";
+export type MarketCountry = "USA" | "UK" | "Turkey";
 
 export interface IUser extends Document {
   email: string;
@@ -21,6 +22,7 @@ export interface IUser extends Document {
   avatar?: string;
   rating?: number;
   propertiesSold?: number;
+  marketCountry?: MarketCountry;
 
   // Session + security
   refreshTokenHash?: string | null;
@@ -74,6 +76,7 @@ const UserSchema = new Schema<IUser>(
     avatar: { type: String },
     rating: { type: Number, min: 0, max: 5, default: 0 },
     propertiesSold: { type: Number, min: 0, default: 0 },
+    marketCountry: { type: String, enum: ["USA", "UK", "Turkey"], default: "USA" },
 
     // session + security
     refreshTokenHash: { type: String, default: null, select: false },

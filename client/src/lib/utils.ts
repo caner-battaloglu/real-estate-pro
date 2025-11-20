@@ -13,8 +13,22 @@ export function formatPrice(price: number, country: Country | null = null): stri
     country = savedCountry || "USA";
   }
 
-  const currency = country === "Turkey" ? "TRY" : "USD";
-  const locale = country === "Turkey" ? "tr-TR" : "en-US";
+  let currency: Intl.NumberFormatOptions["currency"];
+  let locale: string;
+
+  switch (country) {
+    case "Turkey":
+      currency = "TRY";
+      locale = "tr-TR";
+      break;
+    case "UK":
+      currency = "GBP";
+      locale = "en-GB";
+      break;
+    default:
+      currency = "USD";
+      locale = "en-US";
+  }
 
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -29,8 +43,8 @@ export function formatArea(area: number, country: Country | null = null): string
     country = savedCountry || "USA";
   }
 
-  if (country === "Turkey") {
-    // Area is already in m² for Turkey
+  if (country === "Turkey" || country === "UK") {
+    // Area is already in m² for Turkey and the UK
     return `${area.toLocaleString()} m²`;
   } else {
     // Convert m² to sq ft for USA (1 m² = 10.764 sq ft)
@@ -44,7 +58,7 @@ export function getAreaUnit(country: Country | null = null): string {
     const savedCountry = localStorage.getItem("selectedCountry") as Country | null;
     country = savedCountry || "USA";
   }
-  return country === "Turkey" ? "m²" : "sq ft";
+  return country === "USA" ? "sq ft" : "m²";
 }
 
 export function formatDate(date: Date | string): string {

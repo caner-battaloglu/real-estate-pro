@@ -276,6 +276,107 @@ const mockProperties = [
     status: 'approved',
     createdAt: new Date('2024-01-18T11:00:00Z'),
     updatedAt: new Date('2024-01-22T09:45:00Z')
+  },
+  {
+    title: 'Riverside Flat near Tower Bridge',
+    description:
+      'Elegant 2-bedroom flat overlooking the Thames with floor-to-ceiling windows, bespoke kitchen, and concierge services.',
+    price: 550000,
+    type: 'apartment',
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 95,
+    images: [
+      'https://images.unsplash.com/photo-1469474719161-8977f997c5ab?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1469474175568-0c2f710b74e0?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '25 Queen\'s Walk',
+      city: 'London',
+      state: 'London',
+      postalCode: 'SE1 2JX',
+      country: 'UK'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-02-02T10:00:00Z'),
+    updatedAt: new Date('2024-02-05T14:00:00Z')
+  },
+  {
+    title: 'Georgian Townhouse in Notting Hill',
+    description:
+      'Four-story Georgian townhouse featuring original fireplaces, private garden, and a self-contained studio on the lower ground floor.',
+    price: 1850000,
+    type: 'house',
+    bedrooms: 5,
+    bathrooms: 4,
+    area: 310,
+    images: [
+      'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '14 Westbourne Grove',
+      city: 'London',
+      state: 'London',
+      postalCode: 'W2 5RH',
+      country: 'UK'
+    },
+    status: 'approved',
+    approvedAt: new Date('2024-02-10T12:30:00Z'),
+    createdAt: new Date('2024-02-03T09:20:00Z'),
+    updatedAt: new Date('2024-02-10T12:30:00Z')
+  },
+  {
+    title: 'Canalside Loft in Birmingham',
+    description:
+      'Converted warehouse loft with double-height ceilings, exposed brickwork, and balcony overlooking the canal basin.',
+    price: 375000,
+    type: 'apartment',
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 120,
+    images: [
+      'https://images.unsplash.com/photo-1505691723518-36a5ac3be353?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1494526585095-c41746248156?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '8 Wharfside Close',
+      city: 'Birmingham',
+      state: 'West Midlands',
+      postalCode: 'B1 1RD',
+      country: 'UK'
+    },
+    status: 'pending',
+    createdAt: new Date('2024-02-12T11:00:00Z'),
+    updatedAt: new Date('2024-02-12T11:00:00Z')
+  },
+  {
+    title: 'Penthouse with Views of the Shard',
+    description:
+      'Boutique penthouse perched above Borough Market offering wraparound terrace, private lift access, and secure underground parking.',
+    price: 2200000,
+    type: 'apartment',
+    bedrooms: 3,
+    bathrooms: 3,
+    area: 185,
+    images: [
+      'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1489171078254-c3365d6e359f?w=900&h=600&fit=crop'
+    ],
+    address: {
+      line1: '1 Borough High Street',
+      city: 'London',
+      state: 'London',
+      postalCode: 'SE1 9RG',
+      country: 'UK'
+    },
+    status: 'approved',
+    createdAt: new Date('2024-02-08T15:45:00Z'),
+    updatedAt: new Date('2024-02-11T09:10:00Z')
   }
 ];
 
